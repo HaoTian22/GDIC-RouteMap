@@ -53,15 +53,19 @@ module.exports = async (req, res) => {
     });
   });
 
-  const { url } = req;
+  // 在Vercel中，req.url不包含/api前缀，我们需要处理这个差异
+  const { url, method } = req;
+  const pathname = url.split('?')[0]; // 获取路径部分，去除查询参数
+  
+  console.log(`API请求: ${method} ${pathname}`);
   
   try {
-    // 路由处理
-    if (url === '/api/test') {
+    // 路由处理 - 注意这里不包含/api前缀
+    if (pathname === '/test' || pathname === '/') {
       return res.json({ message: '代理服务器运行正常', timestamp: new Date().toISOString() });
     }
     
-    if (url === '/api/station-codes') {
+    if (pathname === '/station-codes') {
       console.log('获取车站代码...');
       
       // 如果没有cookie，先获取
@@ -86,11 +90,10 @@ module.exports = async (req, res) => {
       });
       
       res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-      return res.send(response.data);
-    }
+      return res.send(response.data);    }
     
-    if (url.startsWith('/api/query-trains')) {
-      const urlParams = new URL(req.url, `http://${req.headers.host}`);
+    if (pathname === '/query-trains') {
+      const urlParams = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const from_station = urlParams.searchParams.get('from_station');
       const to_station = urlParams.searchParams.get('to_station');
       const train_date = urlParams.searchParams.get('train_date');
@@ -136,11 +139,10 @@ module.exports = async (req, res) => {
         timeout: 15000
       });
       
-      return res.json(response.data);
-    }
+      return res.json(response.data);    }
     
-    if (url.startsWith('/api/train-details')) {
-      const urlParams = new URL(req.url, `http://${req.headers.host}`);
+    if (pathname === '/train-details') {
+      const urlParams = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const train_no = urlParams.searchParams.get('train_no');
       const from_station_telecode = urlParams.searchParams.get('from_station_telecode');
       const to_station_telecode = urlParams.searchParams.get('to_station_telecode');
@@ -186,11 +188,15 @@ module.exports = async (req, res) => {
         timeout: 15000
       });
       
-      return res.json(response.data);
-    }
+      return res.json(response.data);    }
     
     // 默认404
-    return res.status(404).json({ error: 'API endpoint not found' });
+    console.log(`未找到路由: ${pathname}`);
+    return res.status(404).json({ 
+      error: 'API endpoint not found', 
+      requested_path: pathname,
+      available_endpoints: ['/test', '/station-codes', '/query-trains', '/train-details']
+    });
     
   } catch (error) {
     console.error('API请求失败:', error.message);

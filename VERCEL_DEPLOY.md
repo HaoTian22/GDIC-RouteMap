@@ -70,6 +70,37 @@ GDIC-RouteMap/
 3. **环境检测**: 前端代码会自动检测是否在本地环境，并切换相应的 API 基础 URL
 4. **12306 API**: 由于 12306 网站的访问限制，部分功能可能在生产环境中不稳定
 
+## 调试和测试
+
+### 测试API端点
+部署后，你可以通过以下URL测试API：
+
+- **基础测试**: `https://your-project.vercel.app/api/test`
+- **简单测试**: `https://your-project.vercel.app/api/test.js` (独立测试文件)
+- **车站代码**: `https://your-project.vercel.app/api/station-codes`
+- **列车查询**: `https://your-project.vercel.app/api/query-trains?from_station=PYA&to_station=GCA&train_date=2025-05-25`
+
+### 查看日志
+1. 登录Vercel控制台
+2. 选择你的项目
+3. 点击"Functions"选项卡
+4. 查看函数执行日志
+
+### 常见问题排查
+
+#### 1. 404错误
+- 检查API路径是否正确
+- Vercel中API路径不包含`/api`前缀
+- 路径格式：`/api/endpoint` → Serverless函数中处理为 `/endpoint`
+
+#### 2. CORS错误
+- API函数已配置CORS头
+- 检查浏览器网络选项卡确认预检请求
+
+#### 3. 12306接口访问失败
+- 12306可能限制服务器IP访问
+- 系统会自动回退到模拟数据
+
 ## 常见问题
 
 ### Q: 部署后 API 调用失败
