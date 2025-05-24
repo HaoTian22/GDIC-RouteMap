@@ -563,6 +563,41 @@
                 width: 20px;
                 height: 18px;
             }
+        }        .direction-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #ffd700;
+        }
+
+        .direction-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            position: relative;
+        }
+
+        .direction-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .direction-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+            color: #333;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .direction-btn:first-child {
+            border-right: 1px solid rgba(255, 215, 0, 0.3);
         }
 
         .refresh-btn {
@@ -603,6 +638,17 @@
 </head>
 <body>    <div class="header">
         <div class="current-time" id="currentTime"></div>
+        
+        <!-- Direction Selector -->
+        <div class="direction-selector">
+            <button class="direction-btn" id="zhaoqingBtn" onclick="setDirection('zhaoqing')">
+                肇庆方向
+            </button>
+            <button class="direction-btn active" id="huizhouBtn" onclick="setDirection('huizhou')">
+                惠州方向
+            </button>
+        </div>
+        
         <div class="station-input-container" style="position: relative;">
             <input type="text" 
                    class="station-input" 
@@ -612,7 +658,7 @@
                    autocomplete="off">
             <div class="station-suggestions" id="stationSuggestions"></div>
         </div>
-        <div class="station-name">出发信息</div>        <div style="margin-top: 10px;">
+        <div class="station-name">出发信息</div><div style="margin-top: 10px;">
             <button id="refreshDataBtn" onclick="refreshTrainData()" 
                     class="refresh-btn">
                 刷新12306数据
@@ -650,12 +696,73 @@
             "番禺站", "广州长隆站", "广州莲花山站", "东莞西站", 
             "西平西站", "松山湖北站", "常平南站", "陈江南站", "西湖东站", 
             "云山站", "小金口站"
-        ]);
-
-        // 特快停靠站点（停靠更少站点）
+        ]);        // 特快停靠站点（停靠更少站点）
         const superExpressStops = new Set([
             "肇庆站", "佛山西站", "番禺站", "西平西站", "小金口站"
-        ]);        // 滚动管理器
+        ]);
+
+        // 方向管理
+        let currentDirection = 'huizhou'; // 默认惠州方向（原始数据方向）
+
+        // 获取当前方向的站点列表
+        function getCurrentDirectionStations() {
+            if (currentDirection === 'zhaoqing') {
+                // 肇庆方向：反转站点顺序
+                return [...allStations].reverse();
+            }
+            return allStations; // 惠州方向：保持原始顺序
+        }
+
+        // 获取当前方向的快车停靠站
+        function getCurrentDirectionExpressStops() {
+            if (currentDirection === 'zhaoqing') {
+                // 肇庆方向：使用反转的站点创建新的Set
+                const reversedStations = [...allStations].reverse();
+                const reversedExpressStops = new Set();
+                expressStops.forEach(station => {
+                    reversedExpressStops.add(station);
+                });
+                return reversedExpressStops;
+            }
+            return expressStops; // 惠州方向：保持原始Set
+        }
+
+        // 获取当前方向的特快停靠站
+        function getCurrentDirectionSuperExpressStops() {
+            if (currentDirection === 'zhaoqing') {
+                // 肇庆方向：使用反转的站点创建新的Set
+                const reversedStations = [...allStations].reverse();
+                const reversedSuperExpressStops = new Set();
+                superExpressStops.forEach(station => {
+                    reversedSuperExpressStops.add(station);
+                });
+                return reversedSuperExpressStops;
+            }
+            return superExpressStops; // 惠州方向：保持原始Set
+        }
+
+        // 设置方向
+        function setDirection(direction) {
+            currentDirection = direction;
+            
+            // 更新按钮状态
+            document.getElementById('huizhouBtn').classList.toggle('active', direction === 'huizhou');
+            document.getElementById('zhaoqingBtn').classList.toggle('active', direction === 'zhaoqing');
+            
+            // // 更新当前站点到新方向的默认起始站
+            // if (direction === 'zhaoqing') {
+            //     // 肇庆方向：从小金口站开始
+            //     updateCurrentStation('小金口站');
+            // } else {
+            //     // 惠州方向：从肇庆站开始
+            //     updateCurrentStation('肇庆站');
+            // }
+            
+            // 重新渲染列车列表
+            renderTrainList();
+            
+            console.log(`方向已切换为: ${direction === 'huizhou' ? '惠州方向' : '肇庆方向'}`);
+        }// 滚动管理器
         class ScrollManager {
             constructor() {
                 this.scrollElements = new Map();
@@ -1421,7 +1528,7 @@
             
             // 如果没有即将发车的列车，返回null（不高亮任何列车）
             return null;
-        }function renderStationsDisplay(train, index, isPassing = false) {
+        }        function renderStationsDisplay(train, index, isPassing = false) {
             // 如果是通过状态，返回简化的显示
             if (isPassing) {
                 return `
@@ -1435,34 +1542,36 @@
             const isExpress = actualType === '快车';
             const isSuperExpress = actualType === '特快';
             
+            // 使用当前方向的站点列表
+            const currentDirectionStations = getCurrentDirectionStations();
+            
             // 在查找终点站索引时，去除可能存在的空格以便正确匹配
             let destinationIndex = -1;
             if (train.destination) {
                 // 先尝试直接匹配
-                destinationIndex = allStations.indexOf(train.destination);
+                destinationIndex = currentDirectionStations.indexOf(train.destination);
                 
                 // 如果直接匹配失败，尝试去除空格后匹配
                 if (destinationIndex === -1) {
                     const normalizedDestination = train.destination.replace(/\s+/g, '');
-                    destinationIndex = allStations.findIndex(station => 
+                    destinationIndex = currentDirectionStations.findIndex(station => 
                         station.replace(/\s+/g, '') === normalizedDestination
                     );
                 }
             }
             
-            const currentStationIndex = allStations.indexOf(currentStation);
+            const currentStationIndex = currentDirectionStations.indexOf(currentStation);
             
             // 修改显示逻辑：从当前站开始显示到终点站
             let stationsToShow;
             if (destinationIndex === -1) {
                 // 如果找不到终点站，从当前站显示所有后续站点
-                stationsToShow = allStations.slice(currentStationIndex);
+                stationsToShow = currentDirectionStations.slice(currentStationIndex);
             } else {
                 // 从当前站显示到终点站
-                stationsToShow = allStations.slice(currentStationIndex, destinationIndex + 1);
-            }
-              const stationPoints = stationsToShow.map((station, stationIndex) => {
-                const globalStationIndex = allStations.indexOf(station);
+                stationsToShow = currentDirectionStations.slice(currentStationIndex, destinationIndex + 1);
+            }              const stationPoints = stationsToShow.map((station, stationIndex) => {
+                const globalStationIndex = currentDirectionStations.indexOf(station);
                 let dotClass = 'station-dot';
                 let nameClass = 'station-name-label';
                   // 判断站点状态
@@ -1472,10 +1581,13 @@
                 } else {
                     // 由于现在只显示从当前站开始的站点，不会有已过站的情况
                     // 根据列车类型判断是否停靠
-                    if (isSuperExpress && superExpressStops.has(station)) {
+                    const currentExpressStops = getCurrentDirectionExpressStops();
+                    const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+                    
+                    if (isSuperExpress && currentSuperExpressStops.has(station)) {
                         dotClass += ' stop';
                         nameClass += ' highlight';
-                    } else if (isExpress && !isSuperExpress && expressStops.has(station)) {
+                    } else if (isExpress && !isSuperExpress && currentExpressStops.has(station)) {
                         dotClass += ' stop';
                         nameClass += ' highlight';
                     } else if (!isExpress && !isSuperExpress) {
@@ -1492,10 +1604,15 @@
                     </div>
                 `;
             }).join('');            const trainTypeText = isSuperExpress ? '特快' : (isExpress ? '快车' : '普通');
+            
+            // 使用当前方向的停靠站计算
+            const currentExpressStops = getCurrentDirectionExpressStops();
+            const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+            
             const stopsCount = isSuperExpress ? 
-                stationsToShow.filter(s => superExpressStops.has(s)).length : 
+                stationsToShow.filter(s => currentSuperExpressStops.has(s)).length : 
                 (isExpress ? 
-                    stationsToShow.filter(s => expressStops.has(s)).length : 
+                    stationsToShow.filter(s => currentExpressStops.has(s)).length : 
                     stationsToShow.length);
             
             const trackId = `track-${index}`;
@@ -1526,9 +1643,13 @@
                 const isSuperExpress = actualType === '特快';
                 let isCurrentStationStop = true;
                 
-                if (isSuperExpress && !superExpressStops.has(currentStation)) {
+                // 使用当前方向的停靠站
+                const currentExpressStops = getCurrentDirectionExpressStops();
+                const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+                
+                if (isSuperExpress && !currentSuperExpressStops.has(currentStation)) {
                     isCurrentStationStop = false;
-                } else if (isExpress && !isSuperExpress && !expressStops.has(currentStation)) {
+                } else if (isExpress && !isSuperExpress && !currentExpressStops.has(currentStation)) {
                     isCurrentStationStop = false;
                 }
                   // 根据是否停靠修改状态
@@ -1660,51 +1781,55 @@
                 console.error('获取列车数据失败:', error);
                 return trainData; // 返回现有数据
             }
-        }
-
-        // 查找最近的特快车停靠站
+        }        // 查找最近的特快车停靠站
         function findNearestSuperExpressStation(currentStationName) {
-            const currentIndex = allStations.indexOf(currentStationName);
+            const currentDirectionStations = getCurrentDirectionStations();
+            const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+            
+            const currentIndex = currentDirectionStations.indexOf(currentStationName);
             
             if (currentIndex === -1) {
-                return "小金口站"; // 默认终点
+                // 根据方向返回默认终点
+                return currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
             }
             
             // 从当前站向前找最近的特快车停靠站
-            const superExpressArray = Array.from(superExpressStops);
-            
-            for (let i = currentIndex + 1; i < allStations.length; i++) {
-                if (superExpressStops.has(allStations[i])) {
-                    return allStations[i];
+            for (let i = currentIndex + 1; i < currentDirectionStations.length; i++) {
+                if (currentSuperExpressStops.has(currentDirectionStations[i])) {
+                    return currentDirectionStations[i];
                 }
             }
             
-            // 如果向前找不到，返回最后一个特快车站
-            return "小金口站";
+            // 如果向前找不到，返回对应方向的最后一个特快车站
+            return currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
         }        // 生成基于当前时间的模拟列车数据
         function generateSimulatedTrainData() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            const currentStationIndex = allStations.indexOf(currentStation);
+            const currentDirectionStations = getCurrentDirectionStations();
+            const currentStationIndex = currentDirectionStations.indexOf(currentStation);
             
             // 为不同列车类型定义可能的终点站
             const getDestinationsForTrainType = (trainType, currentIndex) => {
+                const currentExpressStops = getCurrentDirectionExpressStops();
+                const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+                
                 if (trainType === '特快') {
                     // 特快列车只到主要特快停靠站
-                    return Array.from(superExpressStops).filter(station => {
-                        const stationIndex = allStations.indexOf(station);
+                    return Array.from(currentSuperExpressStops).filter(station => {
+                        const stationIndex = currentDirectionStations.indexOf(station);
                         return stationIndex > currentIndex;
                     });
                 } else if (trainType === '快车') {
                     // 快车到快车停靠站
-                    return Array.from(expressStops).filter(station => {
-                        const stationIndex = allStations.indexOf(station);
+                    return Array.from(currentExpressStops).filter(station => {
+                        const stationIndex = currentDirectionStations.indexOf(station);
                         return stationIndex > currentIndex;
                     });
                 } else {
                     // 普通列车可以到所有站点
-                    return allStations.filter(station => {
-                        const stationIndex = allStations.indexOf(station);
+                    return currentDirectionStations.filter(station => {
+                        const stationIndex = currentDirectionStations.indexOf(station);
                         return stationIndex > currentIndex;
                     });
                 }
@@ -1740,12 +1865,11 @@
                 
                 // 获取该列车类型的可能终点站
                 const possibleDestinations = getDestinationsForTrainType(trainType, currentStationIndex);
-                
-                // 根据列车类型选择终点站
+                  // 根据列车类型选择终点站
                 let destination;
                 if (possibleDestinations.length === 0) {
                     // 如果没有找到合适的终点站，使用默认的最后一站
-                    destination = "小金口站";
+                    destination = currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
                 } else if (trainType === '特快') {
                     // 特快列车倾向于选择更远的站点
                     const farStations = possibleDestinations.slice(-3); // 最后3个站点
@@ -1758,7 +1882,7 @@
                 } else {
                     // 普通列车随机选择各种距离的站点
                     destination = possibleDestinations[i % possibleDestinations.length];
-                }                // 根据列车类型生成车次号
+                }// 根据列车类型生成车次号
                 let trainNumber;
                 if (trainType === '特快') {
                     // 特快: 6880-6899
@@ -1807,12 +1931,12 @@
                     suggestions.style.display = 'none';
                 }, 200);
             });
-            
-            // 回车确认
+              // 回车确认
             stationInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const value = this.value.trim();
-                    if (allStations.includes(value) || allStations.includes(value + '站')) {
+                    const currentStations = getCurrentDirectionStations();
+                    if (currentStations.includes(value) || currentStations.includes(value + '站')) {
                         updateCurrentStation(value.endsWith('站') ? value : value + '站');
                         suggestions.style.display = 'none';
                         this.blur();
@@ -1820,13 +1944,13 @@
                 }
             });
         }
-        
-        function showSuggestions(query) {
+          function showSuggestions(query) {
             const suggestions = document.getElementById('stationSuggestions');
+            const currentStations = getCurrentDirectionStations();
             
             if (!query) {
                 // 显示所有站点
-                const html = allStations.map(station => 
+                const html = currentStations.map(station => 
                     `<div class="station-suggestion-item" onclick="selectStation('${station}')">${station}</div>`
                 ).join('');
                 suggestions.innerHTML = html;
@@ -1835,7 +1959,7 @@
             }
             
             // 过滤匹配的站点
-            const filteredStations = allStations.filter(station => 
+            const filteredStations = currentStations.filter(station => 
                 station.includes(query) || station.replace('站', '').includes(query)
             );
             
