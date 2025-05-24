@@ -17,19 +17,23 @@
 3. 导入项目
 
 ### 4. 部署配置
-Vercel 会自动检测到 `vercel.json` 配置文件，无需额外配置。
+Vercel 会自动检测项目结构：
+- 检测到 `api/` 文件夹，自动配置为 Serverless Functions
+- 检测到 `package.json`，自动安装 Node.js 依赖
+- 其他 HTML/CSS/JS 文件作为静态资源部署
+
+**注意**: 已移除 `vercel.json` 配置文件，使用 Vercel 的自动检测功能。
 
 ### 5. 部署
 点击 "Deploy" 按钮开始部署。
 
 ## 项目结构说明
 
-```
+```txt
 GDIC-RouteMap/
 ├── index.html              # 前端页面（静态文件）
 ├── api/                    # Vercel Serverless 函数
 │   └── index.js           # API 路由处理
-├── vercel.json            # Vercel 配置文件
 ├── package.json           # 依赖配置
 ├── test-*.html            # 测试页面
 └── proxy-status.html      # 状态检查页面
