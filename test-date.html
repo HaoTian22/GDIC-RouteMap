@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>日期测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .correct { background-color: #d4edda; }
+        .incorrect { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>日期格式测试</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        function addResult(message, isCorrect = true) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${isCorrect ? 'correct' : 'incorrect'}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function testDateFormats() {
+            const now = new Date();
+            
+            // 原来的方法（UTC时间）
+            const utcDate = new Date().toISOString().split('T')[0];
+            
+            // 修复后的方法（本地时间）
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const localDate = `${year}-${month}-${day}`;
+            
+            // 当前时区信息
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offsetMinutes = now.getTimezoneOffset();
+            const offsetHours = -offsetMinutes / 60;
+            
+            addResult(`<strong>当前时间信息：</strong>`);
+            addResult(`时区: ${timeZone} (UTC${offsetHours >= 0 ? '+' : ''}${offsetHours})`);
+            addResult(`当前本地时间: ${now.toLocaleString('zh-CN')}`);
+            addResult(`当前UTC时间: ${now.toISOString()}`);
+            
+            addResult(`<strong>日期格式对比：</strong>`);
+            addResult(`UTC日期 (旧方法): <code>${utcDate}</code>`, utcDate === localDate);
+            addResult(`本地日期 (新方法): <code>${localDate}</code>`, true);
+            
+            if (utcDate !== localDate) {
+                addResult(`⚠️ UTC和本地日期不同！应该使用本地日期: ${localDate}`, false);
+            } else {
+                addResult(`✅ UTC和本地日期相同: ${localDate}`, true);
+            }
+            
+            // 测试API调用的URL
+            const apiUrl = `http://localhost:3001/api/query-trains?from_station=PYA&to_station=GCA&train_date=${localDate}`;
+            addResult(`<strong>API调用URL：</strong>`);
+            addResult(`<code>${apiUrl}</code>`);
+        }
+        
+        // 页面加载时执行测试
+        window.onload = testDateFormats;
+    </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>列车种别判断测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-case {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #ddd;
+            background: #f9f9f9;
+        }
+        .test-case.super-express {
+            border-left-color: #e74c3c;
+        }
+        .test-case.express {
+            border-left-color: #f39c12;
+        }
+        .test-case.regular {
+            border-left-color: #27ae60;
+        }
+        .train-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .train-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .super-express .train-type {
+            background-color: #e74c3c;
+        }
+        .express .train-type {
+            background-color: #f39c12;
+        }
+        .regular .train-type {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>列车种别判断测试</h1>
+        <p>根据车次号判断列车类型：</p>
+        <ul>
+            <li><strong>特快</strong>：6880-6899</li>
+            <li><strong>快车</strong>：其余68开头</li>
+            <li><strong>普通</strong>：非68开头</li>
+        </ul>
+        
+        <div id="test-results"></div>
+        
+        <h2>手动测试</h2>
+        <input type="text" id="trainNumber" placeholder="输入车次号（如：C6885）" style="padding: 8px; margin-right: 10px;">
+        <button onclick="testTrainNumber()" style="padding: 8px 16px;">测试</button>
+        <div id="manual-result" style="margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        // 根据车次号判断列车类型的函数
+        function getTrainTypeByNumber(trainNumber) {
+            if (!trainNumber) return '普通';
+            
+            // 提取车次号中的数字部分
+            const numberOnly = trainNumber.replace(/[^0-9]/g, '');
+            const trainNum = parseInt(numberOnly);
+            
+            if (trainNum >= 6880 && trainNum <= 6899) {
+                return '特快';
+            } else if (numberOnly.startsWith('68')) {
+                return '快车';
+            } else {
+                return '普通';
+            }
+        }
+
+        // 测试用例
+        const testCases = [
+            'C6880', 'C6885', 'C6899', // 特快
+            'C6800', 'C6850', 'C6870', // 快车
+            'C7500', 'C7501', 'C1234', // 普通
+            'CRH380A', 'G123', 'D456'  // 其他
+        ];
+
+        function runTests() {
+            const resultsContainer = document.getElementById('test-results');
+            
+            testCases.forEach(trainNumber => {
+                const type = getTrainTypeByNumber(trainNumber);
+                const typeClass = type === '特快' ? 'super-express' : 
+                                 (type === '快车' ? 'express' : 'regular');
+                
+                const testCase = document.createElement('div');
+                testCase.className = `test-case ${typeClass}`;
+                testCase.innerHTML = `
+                    <span class="train-number">${trainNumber}</span>
+                    <span class="train-type">${type}</span>
+                `;
+                resultsContainer.appendChild(testCase);
+            });
+        }
+
+        function testTrainNumber() {
+            const input = document.getElementById('trainNumber');
+            const trainNumber = input.value.trim();
+            const result = document.getElementById('manual-result');
+            
+            if (!trainNumber) {
+                result.innerHTML = '<p style="color: red;">请输入车次号</p>';
+                return;
+            }
+            
+            const type = getTrainTypeByNumber(trainNumber);
+            const typeClass = type === '特快' ? 'super-express' : 
+                             (type === '快车' ? 'express' : 'regular');
+            
+            result.innerHTML = `
+                <div class="test-case ${typeClass}">
+                    <span class="train-number">${trainNumber}</span>
+                    <span class="train-type">${type}</span>
+                </div>
+            `;
+        }
+
+        // 页面加载时运行测试
+        window.onload = runTests;
+    </script>
+</body>
+</html>

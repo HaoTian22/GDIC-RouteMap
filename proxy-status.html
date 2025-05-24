@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理服务器状态检查</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(39, 174, 96, 0.8); }
+        .error { background: rgba(231, 76, 60, 0.8); }
+        .warning { background: rgba(243, 156, 18, 0.8); }
+        .info { background: rgba(52, 152, 219, 0.8); }
+        button {
+            background: #ffd700;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover {
+            background: #ffed4a;
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚆 12306代理服务器状态检查</h1>
+        
+        <div id="status-container">
+            <div class="status info">
+                正在检查代理服务器状态...
+            </div>
+        </div>
+        
+        <div>
+            <button onclick="checkStatus()">🔄 重新检查</button>
+            <button onclick="testStationCodes()">🚉 测试车站代码</button>
+            <button onclick="openMainPage()">🏠 打开主页面</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        const PROXY_URL = 'http://localhost:3001';
+        
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function setStatus(message, type = 'info') {
+            const container = document.getElementById('status-container');
+            container.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        async function checkStatus() {
+            setStatus('🔍 正在检查代理服务器...', 'info');
+            log('开始检查代理服务器状态');
+            
+            try {
+                const response = await fetch(`${PROXY_URL}/test`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('✅ 代理服务器运行正常!', 'success');
+                    log(`服务器响应: ${JSON.stringify(data)}`);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                setStatus('❌ 代理服务器连接失败', 'error');
+                log(`连接失败: ${error.message}`);
+                
+                // 提供解决方案
+                setTimeout(() => {
+                    setStatus(`
+                        ❌ 代理服务器未启动或连接失败<br>
+                        <small>请先运行 start-proxy.bat 启动代理服务器</small>
+                    `, 'error');
+                }, 1000);
+            }
+        }
+        
+        async function testStationCodes() {
+            setStatus('🚉 正在测试车站代码接口...', 'info');
+            log('测试车站代码接口');
+            
+            try {
+                const response = await fetch(`${PROXY_URL}/api/station-codes`);
+                
+                if (response.ok) {
+                    const data = await response.text();
+                    if (data.includes('station_names')) {
+                        setStatus('✅ 车站代码接口正常!', 'success');
+                        log('车站代码数据获取成功');
+                    } else {
+                        throw new Error('车站代码数据格式异常');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                setStatus('⚠️ 车站代码接口异常', 'warning');
+                log(`车站代码接口错误: ${error.message}`);
+            }
+        }
+        
+        function openMainPage() {
+            // 尝试打开主页面
+            const mainPageUrl = window.location.href.replace('proxy-status.html', 'index.html');
+            window.open(mainPageUrl, '_blank');
+        }
+        
+        // 页面加载后自动检查状态
+        window.addEventListener('load', () => {
+            log('页面加载完成');
+            checkStatus();
+        });
+        
+        // 定期检查状态
+        setInterval(checkStatus, 30000); // 每30秒检查一次
+    </script>
+</body>
+</html>

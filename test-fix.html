@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>12306 API 修复测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>12306 API 修复测试</h1>
+    
+    <button onclick="testStationCodes()">测试车站代码获取</button>
+    <button onclick="testTrainQuery()">测试列车查询</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        const proxyBaseUrl = 'http://localhost:3001';
+        
+        function addResult(message, isSuccess = true) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            results.appendChild(div);
+        }
+        
+        async function testStationCodes() {
+            try {
+                addResult('正在测试车站代码获取...');
+                const response = await fetch(`${proxyBaseUrl}/api/station-codes`);
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    if (text.includes('var station_names')) {
+                        addResult('✅ 车站代码获取成功', true);
+                    } else {
+                        addResult('❌ 车站代码格式不正确', false);
+                    }
+                } else {
+                    addResult(`❌ 车站代码获取失败: ${response.status}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ 车站代码获取异常: ${error.message}`, false);
+            }
+        }
+        
+        async function testTrainQuery() {
+            try {
+                addResult('正在测试列车查询...');
+                
+                // 使用您提供的示例参数
+                const params = new URLSearchParams({
+                    from_station: 'PYA',  // 番禺
+                    to_station: 'GCA',    // 广州长隆
+                    train_date: '2025-05-25'
+                });
+                
+                const response = await fetch(`${proxyBaseUrl}/api/query-trains?${params}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('API响应:', data);
+                    
+                    if (data.status === true && data.data && data.data.result) {
+                        addResult(`✅ 列车查询成功，找到 ${data.data.result.length} 个结果`, true);
+                    } else if (data.error) {
+                        addResult(`❌ API返回错误: ${data.error}`, false);
+                    } else {
+                        addResult('❌ API响应格式不正确', false);
+                    }
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ 列车查询失败: ${response.status} - ${errorText}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ 列车查询异常: ${error.message}`, false);
+            }
+        }
+        
+        // 页面加载时自动测试
+        window.onload = function() {
+            addResult('开始测试12306 API修复...');
+            setTimeout(testStationCodes, 1000);
+            setTimeout(testTrainQuery, 3000);
+        };
+    </script>
+</body>
+</html>
