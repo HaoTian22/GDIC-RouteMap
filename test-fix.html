@@ -17,9 +17,11 @@
     <button onclick="testTrainQuery()">测试列车查询</button>
     
     <div id="results"></div>
-    
-    <script>
-        const proxyBaseUrl = 'http://localhost:3001';
+      <script>
+        // 自动检测环境
+        const proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3001' 
+            : '';
         
         function addResult(message, isSuccess = true) {
             const results = document.getElementById('results');

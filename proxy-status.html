@@ -70,10 +70,11 @@
         </div>
         
         <div class="log" id="log"></div>
-    </div>
-
-    <script>
-        const PROXY_URL = 'http://localhost:3001';
+    </div>    <script>
+        // 自动检测环境
+        const PROXY_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3001' 
+            : '';
         
         function log(message) {
             const logDiv = document.getElementById('log');

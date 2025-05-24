@@ -54,9 +54,11 @@
             } else {
                 addResult(`✅ UTC和本地日期相同: ${localDate}`, true);
             }
-            
-            // 测试API调用的URL
-            const apiUrl = `http://localhost:3001/api/query-trains?from_station=PYA&to_station=GCA&train_date=${localDate}`;
+              // 测试API调用的URL
+            const proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:3001' 
+                : '';
+            const apiUrl = `${proxyBaseUrl}/api/query-trains?from_station=PYA&to_station=GCA&train_date=${localDate}`;
             addResult(`<strong>API调用URL：</strong>`);
             addResult(`<code>${apiUrl}</code>`);
         }

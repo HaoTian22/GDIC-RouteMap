@@ -1060,10 +1060,12 @@
             // 启动全局同步滚动
             scrollManager.startGlobalScrolling();
         }        // 12306 API集成
-        class Railway12306API {
-            constructor() {
+        class Railway12306API {            constructor() {
                 this.stationCodes = new Map(); // 存储站点名称到代码的映射
-                this.proxyBaseUrl = 'http://localhost:3001'; // 代理服务器地址
+                // 生产环境使用相对路径，开发环境使用localhost
+                this.proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? 'http://localhost:3001' 
+                    : ''; // 在Vercel上使用相对路径
                 this.loadStationCodes();
             }
 
