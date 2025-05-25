@@ -1881,8 +1881,10 @@
                 });
 
                 if (hasStatusChanges) {
-                    renderTrainList(); // 重新渲染列表以反映状态变化
                     console.log('✅ 有列车状态发生变化');
+                    setTimeout(() => {
+                        renderTrainList(); // 重新渲染列表以反映状态变化
+                    }, 1000); // 等待状态更新完成后再处理淡出
                 } else {
                     console.log('ℹ️ 无列车状态变化');
                 }
