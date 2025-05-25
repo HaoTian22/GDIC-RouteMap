@@ -3,7 +3,8 @@
 ## 概述
 
 本项目意在提供html和js模拟一个现代化的城际列车出发板，展示列车的实时信息和停靠站点。
-![image](https://github.com/user-attachments/assets/a07eb747-5298-4cdb-a64d-723d39c0290b)
+![image](https://github.com/user-attachments/assets/5f55ef77-1243-43d8-960c-2348e6dbc454)
+
 
 此项目包含一个前端页面（index.html）和一个后端代理服务器，用于解决访问12306 API时的跨域问题。
 
