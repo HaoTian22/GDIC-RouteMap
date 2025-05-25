@@ -28,3 +28,5 @@ Desktop.ini
 # VS Code
 .vscode/
 *.code-workspace
+
+cache/
