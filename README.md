@@ -5,8 +5,9 @@
 本项目意在提供html和js模拟一个现代化的城际列车出发板，展示列车的实时信息和停靠站点。
 ![image](https://github.com/user-attachments/assets/5f55ef77-1243-43d8-960c-2348e6dbc454)
 
-
 此项目包含一个前端页面（index.html）和一个后端代理服务器，用于解决访问12306 API时的跨域问题。
+
+[🔗在线Demo](https://gdic-route-map.vercel.app/)（看着点用，我Serverless Function免费额度没多少，另外12306的API搞多了会禁止获取，模拟数据倒是能随便玩）
 
 ## 环境要求
 1. **Node.js** (版本 14 或更高)
