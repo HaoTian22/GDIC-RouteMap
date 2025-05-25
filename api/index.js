@@ -52,20 +52,21 @@ module.exports = async (req, res) => {
       return resolve(result);
     });
   });
-
-  // 在Vercel中，req.url不包含/api前缀，我们需要处理这个差异
+  // 在Vercel中，通过rewrites配置，req.url会包含完整路径
   const { url, method } = req;
   const pathname = url.split('?')[0]; // 获取路径部分，去除查询参数
   
   console.log(`API请求: ${method} ${pathname}`);
+  console.log(`完整URL: ${url}`);
+  console.log(`Host: ${req.headers.host}`);
   
   try {
-    // 路由处理 - 注意这里不包含/api前缀
-    if (pathname === '/test' || pathname === '/') {
+    // 路由处理 - 处理/api/前缀的路径
+    if (pathname === '/api/test' || pathname === '/api/' || pathname === '/test' || pathname === '/') {
       return res.json({ message: '代理服务器运行正常', timestamp: new Date().toISOString() });
     }
     
-    if (pathname === '/station-codes') {
+    if (pathname === '/api/station-codes' || pathname === '/station-codes') {
       console.log('获取车站代码...');
       
       // 如果没有cookie，先获取
@@ -92,7 +93,7 @@ module.exports = async (req, res) => {
       return res.send(response.data);
     }
     
-    if (pathname === '/query-trains') {
+    if (pathname === '/api/query-trains' || pathname === '/query-trains') {
       const urlParams = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const from_station = urlParams.searchParams.get('from_station');
       const to_station = urlParams.searchParams.get('to_station');
@@ -133,15 +134,15 @@ module.exports = async (req, res) => {
       if (globalCookies) {
         headers['Cookie'] = globalCookies;
       }
-      
-      const response = await axios.get(`${apiUrl}?${params}`, {
+        const response = await axios.get(`${apiUrl}?${params}`, {
         headers,
         timeout: 15000
       });
       
-      return res.json(response.data);    }
+      return res.json(response.data);
+    }
     
-    if (pathname === '/train-details') {
+    if (pathname === '/api/train-details' || pathname === '/train-details') {
       const urlParams = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const train_no = urlParams.searchParams.get('train_no');
       const from_station_telecode = urlParams.searchParams.get('from_station_telecode');
@@ -182,13 +183,13 @@ module.exports = async (req, res) => {
       if (globalCookies) {
         headers['Cookie'] = globalCookies;
       }
-      
-      const response = await axios.get(`${apiUrl}?${params}`, {
+        const response = await axios.get(`${apiUrl}?${params}`, {
         headers,
         timeout: 15000
       });
       
-      return res.json(response.data);    }
+      return res.json(response.data);
+    }
     
     // 默认404
     console.log(`未找到路由: ${pathname}`);

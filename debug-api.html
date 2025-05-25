@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API 测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { margin: 5px; padding: 10px 20px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>API 调试测试</h1>
+    <p>当前环境：<span id="environment"></span></p>
+    <p>API 基础URL：<span id="baseUrl"></span></p>
+      <button onclick="testConnection()">测试连接</button>
+    <button onclick="testSimpleAPI()">测试简单API</button>
+    <button onclick="testStationCodes()">测试车站代码</button>
+    <button onclick="testDirect()">直接测试 /api/station-codes</button>
+    
+    <div id="results"></div>
+
+    <script>
+        // 检测环境
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocal ? 'http://localhost:3001' : window.location.origin;
+        
+        document.getElementById('environment').textContent = isLocal ? '本地开发' : '生产环境';
+        document.getElementById('baseUrl').textContent = baseUrl;
+        
+        function addResult(message, isSuccess = true, data = null) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            
+            let content = `${new Date().toLocaleTimeString()}: ${message}`;
+            if (data) {
+                content += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            
+            div.innerHTML = content;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        async function testConnection() {
+            try {
+                addResult('🔄 测试基础连接...');
+                const response = await fetch(`${baseUrl}/api/test`);
+                
+                addResult(`📡 请求URL: ${baseUrl}/api/test`);
+                addResult(`📊 响应状态: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('✅ API 连接成功', true, data);
+                } else {
+                    addResult(`❌ API 连接失败: ${response.status}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ 连接错误: ${error.message}`, false);
+            }
+        }
+        
+        async function testStationCodes() {
+            try {
+                addResult('🔄 测试车站代码获取...');
+                const response = await fetch(`${baseUrl}/api/station-codes`);
+                
+                addResult(`📡 请求URL: ${baseUrl}/api/station-codes`);
+                addResult(`📊 响应状态: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    const preview = text.substring(0, 200) + '...';
+                    addResult('✅ 车站代码获取成功', true, { preview, length: text.length });
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ 车站代码获取失败: ${response.status}`, false, { error: errorText });
+                }
+            } catch (error) {
+                addResult(`❌ 请求错误: ${error.message}`, false);
+            }        }
+        
+        async function testSimpleAPI() {
+            try {
+                addResult('🔄 测试简单API...');
+                const response = await fetch(`${baseUrl}/api/simple`);
+                
+                addResult(`📡 请求URL: ${baseUrl}/api/simple`);
+                addResult(`📊 响应状态: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('✅ 简单API测试成功', true, data);
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ 简单API测试失败: ${response.status}`, false, { error: errorText });
+                }
+            } catch (error) {
+                addResult(`❌ 简单API错误: ${error.message}`, false);
+            }
+        }
+        
+        async function testDirect() {
+            try {
+                addResult('🔄 直接测试 /api/station-codes...');
+                const response = await fetch(`${baseUrl}/api/station-codes`);
+                
+                addResult(`📡 请求URL: ${baseUrl}/api/station-codes`);
+                addResult(`📊 响应状态: ${response.status} ${response.statusText}`);
+                addResult(`📋 响应头: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    const preview = text.substring(0, 200) + '...';
+                    addResult('✅ 直接车站代码获取成功', true, { preview, length: text.length });
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ 直接车站代码获取失败: ${response.status}`, false, { error: errorText });
+                }
+            } catch (error) {
+                addResult(`❌ 直接请求错误: ${error.message}`, false);
+            }
+        }
+        
+        // 页面加载时自动测试连接
+        window.onload = () => {
+            setTimeout(testConnection, 1000);
+        };
+    </script>
+</body>
+</html>

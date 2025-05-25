@@ -1064,7 +1064,7 @@
                 this.stationCodes = new Map(); // 存储站点名称到代码的映射                // 生产环境使用相对路径，开发环境使用localhost
                 this.proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                     ? 'http://localhost:3001' 
-                    : ''; // 在生产环境使用相对路径
+                    : window.location.origin; // 在生产环境使用当前域名
                 this.loadStationCodes();
             }
 
