@@ -51,12 +51,15 @@ git clone https://github.com/HaoTian22/GDIC-RouteMap.git
    ```cmd
    node server.js
    ```
+   或
+   ```cmd
+   npm run dev
+   ```
 
 ### 3. 启动前端页面
 1. 确保代理服务器正在运行（端口3001）
-2. 用浏览器打开 `index.html` 文件
-3. 或者使用Live Server等工具在端口5500上运行
-
+2. 打开浏览器`http://localhost:3001`
+3. 您应该能看到列车出发板页面
 ## 验证安装
 
 ### 检查Node.js安装
@@ -69,7 +72,7 @@ npm --version
 
 ### 检查代理服务器
 代理服务器启动后，访问：
-- http://localhost:3001/test - 应该返回JSON状态信息
+- proxy-status.html - 应该返回
 
 ### 检查12306连接
 访问以下地址测试12306连接：
@@ -81,9 +84,10 @@ GDIC-RouteMap/
 ├── index.html              # 前端页面
 ├── start-proxy.bat         # 启动脚本
 ├── README.md              # 本文件
-├── server.js         # 主服务器文件
 ├── test.js           # 测试文件
-└── package.json       # 依赖配置
+├── package.json       # 依赖配置
+└── api/
+      └── server.js         # 主服务器代理文件
 ```
 
 ## 功能说明

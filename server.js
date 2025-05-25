@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+app.use('/', express.static('./')); // 设置静态资源访问路径
 const port = 3001;
 
 // 全局cookie存储
