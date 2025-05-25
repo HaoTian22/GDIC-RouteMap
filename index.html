@@ -1061,11 +1061,10 @@
             scrollManager.startGlobalScrolling();
         }        // 12306 API集成
         class Railway12306API {            constructor() {
-                this.stationCodes = new Map(); // 存储站点名称到代码的映射
-                // 生产环境使用相对路径，开发环境使用localhost
+                this.stationCodes = new Map(); // 存储站点名称到代码的映射                // 生产环境使用相对路径，开发环境使用localhost
                 this.proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                     ? 'http://localhost:3001' 
-                    : ''; // 在Vercel上使用相对路径
+                    : ''; // 在生产环境使用相对路径
                 this.loadStationCodes();
             }
 
@@ -1101,69 +1100,19 @@
                             }
                         });
                         
-                        console.log('车站代码加载完成，共', this.stationCodes.size, '个车站');
-                    } else {
+                        console.log('车站代码加载完成，共', this.stationCodes.size, '个车站');                    } else {
                         throw new Error('无法解析车站代码数据');
                     }
                 } catch (error) {
                     console.error('加载车站代码失败:', error);
-                    // 使用备用的手动映射
-                    this.initBackupStationCodes();
-                }
-            }            // 备用的车站代码映射
-            initBackupStationCodes() {
-                const backupCodes = {
-                    '肇庆': 'ZQQ',
-                    '端州': 'DZQ',
-                    '鼎湖山': 'DHQ',
-                    '鼎湖东': 'DRQ',
-                    '四会': 'SHQ',
-                    '大旺': 'DWQ',
-                    '云东海': 'YDQ',
-                    '三水北': 'SBQ',
-                    '狮山北': 'SSH',
-                    '狮山': 'SSQ',
-                    '佛山西': 'FOQ',
-                    '张槎': 'ZCQ',
-                    '顺德北': 'SXQ',
-                    '北滘西': 'BJQ',
-                    '陈村': 'CEQ',
-                    '番禺': 'PYQ',
-                    '广州长隆': 'CLQ',
-                    '东环': 'DHQ',
-                    '官桥北': 'GQQ',
-                    '广州莲花山': 'LHQ',
-                    '麻涌': 'MCQ',
-                    '东莞西': 'DMQ',
-                    '道滘': 'DJQ',
-                    '西平西': 'XPQ',
-                    '东城南': 'DCQ',
-                    '寮步': 'LBQ',
-                    '松山湖北': 'SSQ',
-                    '大朗镇': 'DLQ',
-                    '常平南': 'CPQ',
-                    '常平东': 'CPQ',
-                    '樟木头东': 'ZMQ',
-                    '银瓶': 'YPQ',
-                    '沥林北': 'LLQ',
-                    '陈江南': 'CJQ',
-                    '惠环': 'HHQ',
-                    '龙丰': 'LFQ',
-                    '西湖东': 'XHQ',
-                    '云山': 'YSQ',
-                    '小金口': 'XJQ'
-                };
-                
-                Object.entries(backupCodes).forEach(([name, code]) => {
-                    // 保存不带"站"字的映射
-                    this.stationCodes.set(name, code);
-                    // 同时保存带"站"字的映射
-                    this.stationCodes.set(name + '站', code);
-                });
-                
-                console.log('备用车站代码初始化完成，共', this.stationCodes.size, '个车站');
-            }// 获取车站代码
+                    throw error; // 重新抛出错误，强制失败
+                }            }            // 获取车站代码
             getStationCode(stationName) {
+                // 检查车站代码是否已加载
+                if (this.stationCodes.size === 0) {
+                    throw new Error('车站代码尚未加载完成，请等待网络加载或检查网络连接');
+                }
+                
                 // 首先尝试直接查找
                 if (this.stationCodes.has(stationName)) {
                     return this.stationCodes.get(stationName);
@@ -1184,15 +1133,17 @@
                     }
                 }
                 
+                console.warn(`未找到车站代码: ${stationName}，可用车站代码数量: ${this.stationCodes.size}`);
                 return null;
-            }// 查询列车余票信息
+            }// 查询列车余票信息            
             async queryTrains(fromStation, toStation, date) {
                 const fromCode = this.getStationCode(fromStation);
                 const toCode = this.getStationCode(toStation);
                 
                 if (!fromCode || !toCode) {
-                    console.error('未找到车站代码:', { fromStation, toStation, fromCode, toCode });
-                    return [];
+                    const errorMsg = `未找到车站代码: ${fromStation}(${fromCode}) -> ${toStation}(${toCode})，请确保车站代码已从在线获取`;
+                    console.error(errorMsg);
+                    throw new Error(errorMsg);
                 }
                 
                 try {

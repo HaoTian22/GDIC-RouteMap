@@ -88,9 +88,9 @@ module.exports = async (req, res) => {
         headers,
         timeout: 10000
       });
-      
       res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-      return res.send(response.data);    }
+      return res.send(response.data);
+    }
     
     if (pathname === '/query-trains') {
       const urlParams = new URL(req.url, `http://${req.headers.host || 'localhost'}`);

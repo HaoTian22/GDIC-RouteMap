@@ -53,8 +53,7 @@
                 addResult(`⚠️ UTC和本地日期不同！应该使用本地日期: ${localDate}`, false);
             } else {
                 addResult(`✅ UTC和本地日期相同: ${localDate}`, true);
-            }
-              // 测试API调用的URL
+            }            // 测试API调用的URL
             const proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                 ? 'http://localhost:3001' 
                 : '';

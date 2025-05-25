@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "Proxy server for 12306 API to solve CORS issues",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "build": "echo 'No build process required'",
-    "vercel-build": "echo 'Build completed'"
-  },
+
   "dependencies": {
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "@vercel/node": "^5.1.16",
+    "typescript": "^5.8.3"
   }
 }
