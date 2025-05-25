@@ -914,7 +914,10 @@
     </div>
 
 
-    <script>        // 所有站点按顺序排列（基于真实C7514/C7515列车案例）
+    <script>        
+        // ---固定数据---
+
+        // 所有站点按顺序排列（基于真实C7514/C7515列车案例）
         const allStations = [
             "肇庆站", "端州站", "鼎湖山站", "鼎湖东站", "四会站", "大旺站",
             "云东海站", "三水北站", "狮山北站", "狮山站", "佛山西站", "张槎站",
@@ -933,6 +936,138 @@
         const superExpressStops = new Set([
             "肇庆站", "佛山西站", "番禺站", "西平西站", "小金口站"
         ]);
+
+        // 模拟数据
+        const simulationTrainData = [
+            {
+                type: "普通",
+                number: "C7500",
+                time: (() => {
+                    // 生成另一个已发车超过3分钟的时间（比当前时间早2分钟）
+                    const now = new Date();
+                    const pastTime = new Date(now.getTime() - 2 * 60000);
+                    return `${pastTime.getHours().toString().padStart(2, '0')}:${pastTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "惠环站",
+                platform: "1",
+                status: "已发车",
+                note: "1-8号车厢"
+            },
+            {
+                type: "普通",
+                number: "C7501",
+                time: (() => {
+                    // 生成一个即将发车的时间（比当前时间晚1分钟）
+                    const now = new Date();
+                    const soonTime = new Date(now.getTime() + 1 * 60000);
+                    return `${soonTime.getHours().toString().padStart(2, '0')}:${soonTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "小金口站",
+                platform: "2",
+                status: "即将发车",
+                note: "1-8号车厢"
+            },
+            {
+                type: "特快",
+                number: "C6881",
+                time: (() => {
+                    // 生成一个正在检票的时间（比当前时间晚3分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 3 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "西平西站",
+                platform: "1",
+                status: "正在检票",
+                note: "1-8号车厢"
+            },
+            {
+                type: "快车",
+                number: "C6802",
+                time: (() => {
+                    // 生成一个即将检票的时间（比当前时间晚16分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 16 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "东莞西站",
+                platform: "4",
+                status: "准点",
+                note: "1-8号车厢"
+            },
+            {
+                type: "普通",
+                number: "C7502",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚20分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 20 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "惠环站",
+                platform: "1",
+                status: "准点",
+                note: "1-8号车厢"
+            },
+            {
+                type: "特快",
+                number: "C6882",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚25分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 25 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "小金口站",
+                platform: "3",
+                status: "准点",
+                note: "1-8号车厢"
+            },
+            {
+                type: "快车",
+                number: "C6803",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚30分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 30 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "松山湖北站",
+                platform: "3",
+                status: "准点",
+                note: "1-8号车厢"
+            },
+            {
+                type: "普通",
+                number: "C7503",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚35分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 35 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "龙丰站",
+                platform: "2",
+                status: "准点",
+                note: "1-8号车厢"
+            },
+            {
+                type: "特快",
+                number: "C6883",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚40分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 40 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
+                destination: "佛山西站",
+                platform: "4",
+                status: "准点",
+                note: "1-8号车厢"
+            },
+        ];
+
+        // ---固定数据处理---
 
         // 方向管理
         let currentDirection = 'huizhou'; // 默认惠州方向（原始数据方向）
@@ -996,7 +1131,10 @@
             }, 500);
 
             console.log(`方向已切换为: ${direction === 'huizhou' ? '惠州方向' : '肇庆方向'}`);
-        }// 滚动管理器
+        }
+        
+        // ---页面动效---
+        // 滚动管理器
         class ScrollManager {
             constructor() {
                 this.scrollElements = new Map();
@@ -1273,7 +1411,8 @@
             }
         }
 
-        const scrollManager = new ScrollManager();        // 当前站点变量
+        // ---用户数据---
+        const scrollManager = new ScrollManager(); // 当前站点变量
         let currentStation = "肇庆站";
 
         // 当前数据源
@@ -1295,7 +1434,12 @@
 
             // 启动全局同步滚动
             scrollManager.startGlobalScrolling();
-        }        // 12306 API集成
+        }      
+        
+        
+        // ---12306 API集成---
+
+        // 12306 API集成类
         class Railway12306API {
             constructor() {
                 this.stationCodes = new Map(); // 存储站点名称到代码的映射
@@ -1386,7 +1530,9 @@
                     console.error('加载车站代码失败:', error);
                     throw error; // 重新抛出错误，强制失败
                 }
-            }            // 获取车站代码
+            }            
+            
+            // 获取车站代码
             getStationCode(stationName) {
                 // 检查车站代码是否已加载
                 if (this.stationCodes.size === 0) {
@@ -1415,7 +1561,9 @@
 
                 console.warn(`未找到车站代码: ${stationName}，可用车站代码数量: ${this.stationCodes.size}`);
                 return null;
-            }            // 查询列车余票信息            
+            }            
+            
+            // 查询站与站间的列车信息         
             async queryTrains(fromStation, toStation, date) {
                 // 确保已初始化
                 await this.ensureInitialized();
@@ -1478,7 +1626,9 @@
                     }
                     return null;
                 }).filter(train => train !== null);
-            }            // 查询列车详细信息
+            }            
+            
+            // 异步查询列车详细信息
             async queryTrainDetails(trainNo, fromCode, toCode, date) {
                 // 确保已初始化
                 await this.ensureInitialized();
@@ -1523,23 +1673,13 @@
                     console.error('查询列车详细信息失败:', error);
                     return [];
                 }
-            }// 判断列车类型
-            determineTrainType(trainCode, stations) {
-                // 根据车次号判断列车类型
-                // 提取车次号中的数字部分
-                const trainNumber = trainCode.replace(/[^0-9]/g, '');
-                const trainNum = parseInt(trainNumber);
-
-                if (trainNum >= 6880 && trainNum <= 6899) {
-                    return '特快';
-                } else if (trainNumber.startsWith('68')) {
-                    return '快车';
-                } else {
-                    return '普通';
-                }
             }
-        }        // 初始化12306 API
+            
+        }
+        // 调用前面的函数，创建Railway12306API实例
         const railway12306 = new Railway12306API();
+
+        // ---实用函数--
 
         // 根据车次号判断列车类型的通用函数
         function getTrainTypeByNumber(trainNumber) {
@@ -1556,139 +1696,9 @@
             } else {
                 return '普通';
             }
-        }        // 模拟数据
-        const simulationTrainData = [
-            {
-                type: "普通",
-                number: "C7500",
-                time: (() => {
-                    // 生成另一个已发车超过3分钟的时间（比当前时间早2分钟）
-                    const now = new Date();
-                    const pastTime = new Date(now.getTime() - 2 * 60000);
-                    return `${pastTime.getHours().toString().padStart(2, '0')}:${pastTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "惠环站",
-                platform: "1",
-                status: "已发车",
-                note: "1-8号车厢"
-            },
-            {
-                type: "普通",
-                number: "C7501",
-                time: (() => {
-                    // 生成一个即将发车的时间（比当前时间晚1分钟）
-                    const now = new Date();
-                    const soonTime = new Date(now.getTime() + 1 * 60000);
-                    return `${soonTime.getHours().toString().padStart(2, '0')}:${soonTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "小金口站",
-                platform: "2",
-                status: "即将发车",
-                note: "1-8号车厢"
-            },
-            {
-                type: "特快",
-                number: "C6881",
-                time: (() => {
-                    // 生成一个正在检票的时间（比当前时间晚3分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 3 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "西平西站",
-                platform: "1",
-                status: "正在检票",
-                note: "1-8号车厢"
-            },
-            {
-                type: "快车",
-                number: "C6802",
-                time: (() => {
-                    // 生成一个即将检票的时间（比当前时间晚16分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 16 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "东莞西站",
-                platform: "4",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "普通",
-                number: "C7502",
-                time: (() => {
-                    // 生成一个预计准点的时间（比当前时间晚20分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 20 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "惠环站",
-                platform: "1",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "特快",
-                number: "C6882",
-                time: (() => {
-                    // 生成一个预计准点的时间（比当前时间晚25分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 25 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "小金口站",
-                platform: "3",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "快车",
-                number: "C6803",
-                time: (() => {
-                    // 生成一个预计准点的时间（比当前时间晚30分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 30 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "松山湖北站",
-                platform: "3",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "普通",
-                number: "C7503",
-                time: (() => {
-                    // 生成一个预计准点的时间（比当前时间晚35分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 35 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "龙丰站",
-                platform: "2",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "特快",
-                number: "C6883",
-                time: (() => {
-                    // 生成一个预计准点的时间（比当前时间晚40分钟）
-                    const now = new Date();
-                    const checkTime = new Date(now.getTime() + 40 * 60000);
-                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
-                })(),
-                destination: "佛山西站",
-                platform: "4",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-        ];
+        }        
 
-        // 列车数据（根据当前数据源使用12306数据或模拟数据）
-        let trainData = [...simulationTrainData]; // 默认使用模拟数据
-
+        // 显示当前时间
         function updateCurrentTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('zh-CN', {
@@ -1702,7 +1712,10 @@
                 month: '2-digit',
                 day: '2-digit'
             });
-            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;        }        // 计算跨天时间差的辅助函数
+            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
+        }
+
+        // 计算列车发车剩余时间差
         function calculateTimeDifferenceWithCrossDay(departureTime) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1743,7 +1756,9 @@
                 // 正常状态
                 return { status: '准点', class: 'on-time', shouldFadeOut: false };
             }
-        }        // 单个列车状态更新函数
+        }
+
+        // 单个列车状态更新函数
         function updateSingleTrainStatus(index, train) {
             const trainElement = document.querySelector(`[data-train-index="${index}"]`);
             if (!trainElement) return false;
@@ -1814,7 +1829,9 @@
             }
 
             return false; // 状态无变化
-        }        // 智能状态刷新 - 逐个更新列车状态，不重新渲染整个列表
+        }        
+        
+        // 智能状态刷新 - 逐个更新列车状态，不重新渲染整个列表
         function scheduleSmartStatusRefresh() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1891,7 +1908,9 @@
 
                 scheduleSmartStatusRefresh(); // 递归安排下次刷新
             }, refreshInterval);
-        }        // 管理列车的淡出和移除
+        }        
+        
+        // 管理列车的淡出和移除
         function manageFadeOutTrains() {
             // 循环标记需要淡出的列车
             const trainsToFadeOut = [];
@@ -1956,7 +1975,10 @@
 
             // 如果没有即将发车的列车，返回null（不高亮任何列车）
             return null;
-        } function renderStationsDisplay(train, index, isPassing = false) {
+        } 
+        
+        // 渲染车站列表显示
+        function renderStationsDisplay(train, index, isPassing = false) {
             // 如果是通过状态，返回简化的显示
             if (isPassing) {
                 return `
@@ -2059,9 +2081,11 @@
                 </div>
             `;
         }
+
+        // 初始化列车Table
         function renderTrainList() {
             const trainListElement = document.getElementById('trainList');
-            console.log('🔄 全局重新渲染列车列表...');
+            console.log('🔄 全局初始化列车列表...');
 
             trainListElement.innerHTML = trainData.map((train, index) => {
                 // 根据车次号动态判断列车类型
@@ -2135,7 +2159,13 @@
 
             // 管理列车淡出
             setTimeout(manageFadeOutTrains, 500);
-        }// 从12306获取列车数据
+        }
+
+        
+        // 列车数据（根据当前数据源使用12306数据或模拟数据）
+        let trainData = [...simulationTrainData]; // 默认使用模拟数据
+
+        // 从12306获取列车数据
         async function fetchTrainData() {
             try {
                 // 获取本地时区的今天日期 YYYY-MM-DD
@@ -2177,7 +2207,7 @@
                             }
 
                             // 判断列车类型
-                            const trainType = railway12306.determineTrainType(train.trainCode, details);
+                            const trainType = getTrainTypeByNumber(train.trainCode);
 
                             // 从列车详情中获取真正的终点站（最后一个站点）
                             let actualDestination = nearestSuperExpressStation; // 默认值
@@ -2248,7 +2278,9 @@
                     error: error.message
                 };
             }
-        }// 查找最近的特快车停靠站
+        }
+        
+        // 查找最近的特快车停靠站
         function findNearestSuperExpressStation(currentStationName) {
             const currentDirectionStations = getCurrentDirectionStations();
             const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
@@ -2269,115 +2301,9 @@
 
             // 如果向前找不到，返回对应方向的最后一个特快车站
             return currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
-        }        // 生成基于当前时间的模拟列车数据
-        function generateSimulatedTrainData() {
-            const now = new Date();
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            const currentDirectionStations = getCurrentDirectionStations();
-            const currentStationIndex = currentDirectionStations.indexOf(currentStation);
-
-            // 为不同列车类型定义可能的终点站
-            const getDestinationsForTrainType = (trainType, currentIndex) => {
-                const currentExpressStops = getCurrentDirectionExpressStops();
-                const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-
-                if (trainType === '特快') {
-                    // 特快列车只到主要特快停靠站
-                    return Array.from(currentSuperExpressStops).filter(station => {
-                        const stationIndex = currentDirectionStations.indexOf(station);
-                        return stationIndex > currentIndex;
-                    });
-                } else if (trainType === '快车') {
-                    // 快车到快车停靠站
-                    return Array.from(currentExpressStops).filter(station => {
-                        const stationIndex = currentDirectionStations.indexOf(station);
-                        return stationIndex > currentIndex;
-                    });
-                } else {
-                    // 普通列车可以到所有站点
-                    return currentDirectionStations.filter(station => {
-                        const stationIndex = currentDirectionStations.indexOf(station);
-                        return stationIndex > currentIndex;
-                    });
-                }
-            };
-
-            // 生成接下来几小时的列车班次
-            const simulatedTrains = [];
-
-            for (let i = 0; i < 12; i++) {
-                let departMinutes, timeString;
-
-                // 为前三个列车设置特定的时间，以确保有不同的状态
-                if (i === 0) {
-                    // 第一个列车：已发车（比当前时间早5分钟）
-                    departMinutes = currentMinutes - 5;
-                } else if (i === 1) {
-                    // 第二个列车：即将发车（比当前时间晚2分钟）
-                    departMinutes = currentMinutes + 2;
-                } else if (i === 2) {
-                    // 第三个列车：开始检票（比当前时间晚8分钟）
-                    departMinutes = currentMinutes + 8;
-                } else {
-                    // 其他列车：正常间隔
-                    departMinutes = currentMinutes + 15 + ((i - 3) * 20);
-                }                const hours = Math.floor(departMinutes / 60) % 24;
-                const minutes = departMinutes % 60;
-                
-                // 处理跨天情况：确保时间为正值
-                const normalizedHours = hours < 0 ? hours + 24 : hours;
-                const normalizedMinutes = minutes < 0 ? minutes + 60 : minutes;
-                
-                timeString = `${normalizedHours.toString().padStart(2, '0')}:${normalizedMinutes.toString().padStart(2, '0')}`;
-
-                const trainTypes = ['普通', '快车', '特快'];
-                const trainType = trainTypes[i % 3];
-
-                // 获取该列车类型的可能终点站
-                const possibleDestinations = getDestinationsForTrainType(trainType, currentStationIndex);
-                // 根据列车类型选择终点站
-                let destination;
-                if (possibleDestinations.length === 0) {
-                    // 如果没有找到合适的终点站，使用默认的最后一站
-                    destination = currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
-                } else if (trainType === '特快') {
-                    // 特快列车倾向于选择更远的站点
-                    const farStations = possibleDestinations.slice(-3); // 最后3个站点
-                    destination = farStations[i % farStations.length];
-                } else if (trainType === '快车') {
-                    // 快车选择中等距离的站点
-                    const midIndex = Math.floor(possibleDestinations.length / 2);
-                    const midStations = possibleDestinations.slice(Math.max(0, midIndex - 2), midIndex + 3);
-                    destination = midStations[i % midStations.length];
-                } else {
-                    // 普通列车随机选择各种距离的站点
-                    destination = possibleDestinations[i % possibleDestinations.length];
-                }// 根据列车类型生成车次号
-                let trainNumber;
-                if (trainType === '特快') {
-                    // 特快: 6880-6899
-                    trainNumber = `C${6880 + (i % 20)}`;
-                } else if (trainType === '快车') {
-                    // 快车: 其余68开头（6800-6870，避免接近特快范围）
-                    trainNumber = `C${6800 + (i % 71)}`;
-                } else {
-                    // 普通: 非68开头
-                    trainNumber = `C${7500 + i}`;
-                }
-
-                simulatedTrains.push({
-                    type: trainType,
-                    number: trainNumber,
-                    time: timeString,
-                    destination: destination,
-                    platform: ((i % 4) + 1).toString(),
-                    status: "准点", // 这个状态将在渲染时重新计算
-                    note: "1-8号车厢"
-                });
-            }
-
-            return simulatedTrains;
-        }        // 站点输入框功能
+        }        
+        
+        // 站点输入框选择功能
         function initStationInput() {
             const stationInput = document.getElementById('currentStationInput');
             const suggestions = document.getElementById('stationSuggestions');
@@ -2432,7 +2358,10 @@
 
             // 将防竞态条件变量存储到全局作用域，供selectStation使用
             window.stationInputState = { isSelectingStation: () => isSelectingStation, setSelectingStation: (value) => { isSelectingStation = value; } };
-        } function showSuggestions(query) {
+        }
+
+        // 显示站点建议列表
+        function showSuggestions(query) {
             const suggestions = document.getElementById('stationSuggestions');
             const currentStations = getCurrentDirectionStations();
 
@@ -2461,6 +2390,7 @@
                 suggestions.style.display = 'none';
             }
         }
+        // 选择车站
         function selectStation(station) {
             // 设置选择状态，防止blur事件干扰
             if (window.stationInputState) {
@@ -2483,12 +2413,16 @@
                 }
             }, 100);
         }
+
+        // 更新当前车站
         function updateCurrentStation(station) {
             currentStation = station;
             document.getElementById('currentStationInput').value = station;
             // 重新渲染列车列表以更新站点状态
             renderTrainList();
-        }        // 刷新12306数据
+        }        
+        
+        // 刷新12306数据
         async function refreshTrainData() {
             // 只在使用12306数据源时工作
             if (currentDataSource !== '12306') {
@@ -2529,7 +2463,7 @@
                 console.error('刷新12306数据失败:', error);
 
                 // 显示错误提示
-                alert('获取12306数据失败，已切换回模拟数据\n错误信息: ' + error.message);
+                // alert('获取12306数据失败，已切换回模拟数据\n错误信息: ' + error.message);
 
                 // 切换回模拟数据
                 currentDataSource = 'simulation';
@@ -2547,7 +2481,9 @@
                 refreshBtn.disabled = currentDataSource !== '12306';
                 refreshBtn.textContent = '刷新12306数据';
             }
-        }        // 初始化和定时更新
+        }        
+        
+        // 初始化和定时更新
         async function init() {
             updateCurrentTime();
             initStationInput();
