@@ -387,7 +387,42 @@
         .delay { background: #e74c3c; color: white; }
         .boarding { background: #f39c12; color: white; }
         .departed { background: #7f8c8d; color: white; }
-        .passing { background: #95a5a6; color: white; }
+        .passing { background: #95a5a6; color: white; }        /* 已发车超过3分钟的列车动画 */
+        .train-item.fade-out {
+            animation: fadeOutSmooth 1.5s ease forwards;
+            pointer-events: none !important;
+        }
+        /* 列车消失补充动画 */
+        @keyframes fadeOutSmooth {
+            0% { 
+                opacity: 0.7; 
+                transform: translateX(0) scale(1);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateX(-20px) scale(0.95);
+            }
+        }
+
+
+        /* 其他列车上移补充动画 */
+        .train-item.slide-up {
+            animation: slideUpSmooth 1.5s ease forwards;
+            pointer-events: none !important;
+        }
+
+        @keyframes slideUpSmooth {
+            0% { 
+                transform: translateY(0px);
+            }
+            100% { 
+                transform: translateY(-110%);
+            }
+        }        /* 淡出前的预警状态 */
+        .train-item.pre-fade {
+            opacity: 0.7;
+            transition: opacity 1s ease;
+        }
 
         .route-map {
             background: #16213e;
@@ -1369,16 +1404,16 @@
         }        // 模拟数据
         const simulationTrainData = [
             {
-                type: "快车",
-                number: "C6801",
+                type: "普通",
+                number: "C7500",
                 time: (() => {
-                    // 生成一个已发车的时间（比当前时间早5分钟）
+                    // 生成另一个已发车超过3分钟的时间（比当前时间早4分钟）
                     const now = new Date();
-                    const pastTime = new Date(now.getTime() - 5 * 60000);
+                    const pastTime = new Date(now.getTime() - 4 * 60000);
                     return `${pastTime.getHours().toString().padStart(2, '0')}:${pastTime.getMinutes().toString().padStart(2, '0')}`;
                 })(),
-                destination: "广州长隆站",
-                platform: "3",
+                destination: "惠环站",
+                platform: "1",
                 status: "已发车",
                 note: "1-8号车厢"
             },
@@ -1536,9 +1571,7 @@
                 month: '2-digit',
                 day: '2-digit'
             });
-            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;        }
-
-        // 根据当前时间和发车时间计算列车状态
+            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;        }        // 根据当前时间和发车时间计算列车状态
         function calculateTrainStatus(departureTime) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1550,20 +1583,126 @@
             // 计算时间差（分钟）
             const timeDiff = departMinutes - currentMinutes;
             
-            if (timeDiff <= 0) {
-                // 已经发车或正在发车
-                return { status: '已发车', class: 'departed' };
+            if (timeDiff <= -3) {
+                // 已发车超过3分钟，准备淡出
+                return { status: '已发车', class: 'departed', shouldFadeOut: true };
+            } else if (timeDiff <= 0) {
+                // 已经发车但未超过3分钟
+                return { status: '已发车', class: 'departed', shouldFadeOut: false };
             } else if (timeDiff <= 4) {
                 // 4分钟内即将发车
-                return { status: '即将发车', class: 'boarding' };
+                return { status: '即将发车', class: 'boarding', shouldFadeOut: false };
             } else if (timeDiff <= 15) {
                 // 15分钟内开始检票
-                return { status: '正在检票', class: 'boarding' };
+                return { status: '正在检票', class: 'boarding', shouldFadeOut: false };
             } else {
                 // 正常状态
-                return { status: '准点', class: 'on-time' };
+                return { status: '准点', class: 'on-time', shouldFadeOut: false };
             }
-        }        function getNextDeparture() {
+        }        // 智能状态刷新 - 根据即将发生的状态变化决定刷新频率
+        function scheduleSmartStatusRefresh() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            // 找到最近需要状态更新的列车
+            let nearestStatusChange = null;
+            let minTimeDiff = Infinity;
+            
+            trainData.forEach(train => {
+                const [hours, minutes] = train.time.split(':').map(Number);
+                const trainMinutes = hours * 60 + minutes;
+                const timeDiff = trainMinutes - currentMinutes;
+                
+                // 检查各个状态转换的临界点
+                const statusChangePoints = [
+                    timeDiff - 15, // 开始检票
+                    timeDiff - 4,  // 即将发车
+                    timeDiff,      // 已发车
+                    timeDiff + 3   // 发车后3分钟（淡出时机）
+                ].filter(diff => diff > 0 && diff < minTimeDiff);
+                
+                if (statusChangePoints.length > 0) {
+                    const nearestChange = Math.min(...statusChangePoints);
+                    if (nearestChange < minTimeDiff) {
+                        minTimeDiff = nearestChange;
+                        nearestStatusChange = nearestChange;
+                    }
+                }
+            });
+            
+            // 根据最近的状态变化设置刷新间隔
+            let refreshInterval;
+            if (nearestStatusChange !== null && nearestStatusChange <= 20) {
+                // 如果20分钟内有状态变化，每分钟刷新一次
+                refreshInterval = 60000; // 1分钟
+                console.log(`⏰ 智能刷新：${Math.ceil(nearestStatusChange)}分钟后有状态变化，每分钟刷新一次`);
+            } else {
+                // 否则每5分钟刷新一次
+                refreshInterval = 300000; // 5分钟
+                console.log('⏰ 智能刷新：无近期状态变化，每5分钟刷新一次');
+            }
+            
+            // 清除之前的定时器
+            if (window.statusRefreshTimer) {
+                clearTimeout(window.statusRefreshTimer);
+            }
+            
+            // 设置新的定时器
+            window.statusRefreshTimer = setTimeout(() => {
+                console.log('🔄 智能刷新列车状态...');
+                renderTrainList();
+                scheduleSmartStatusRefresh(); // 递归安排下次刷新
+            }, refreshInterval);
+        }        // 管理列车的淡出和移除
+        function manageFadeOutTrains() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            // 标记需要淡出的列车
+            const trainsToFadeOut = [];
+            trainData.forEach((train, index) => {
+                const [hours, minutes] = train.time.split(':').map(Number);
+                const trainMinutes = hours * 60 + minutes;
+                const timeDiff = trainMinutes - currentMinutes;
+                
+                if (timeDiff <= -3) {
+                    trainsToFadeOut.push(index);
+                }
+            });            if (trainsToFadeOut.length > 0) {
+                console.log(`🚫 淡出${trainsToFadeOut.length}趟已发车超过3分钟的列车`);
+                
+                // 先开始淡出动画
+                trainsToFadeOut.forEach(index => {
+                    const trainElement = document.querySelector(`[data-train-index="${index}"]`);
+                    if (trainElement && !trainElement.classList.contains('fade-out')) {
+                        trainElement.classList.add('fade-out');
+                    }
+                });
+                
+                // 2秒后（淡出动画完成）开始其他列车的上移动画
+                setTimeout(() => {
+                    // 为其他列车添加上移动画
+                    const allTrainElements = document.querySelectorAll('.train-item:not(.fade-out)');
+                    allTrainElements.forEach(element => {
+                        if (!element.classList.contains('slide-up')) {
+                            element.classList.add('slide-up');
+                        }
+                    });
+                }, 1000);
+                
+                // 2.5秒后从数据中移除已淡出的列车，并重新渲染
+                setTimeout(() => {
+                    // 从后往前删除，避免索引变化
+                    for (let i = trainsToFadeOut.length - 1; i >= 0; i--) {
+                        trainData.splice(trainsToFadeOut[i], 1);
+                    }
+                    console.log(`✅ 移除了${trainsToFadeOut.length}趟列车，当前列车数量：${trainData.length}`);
+                    renderTrainList();
+                }, 3000);
+            }
+        }
+
+        function getNextDeparture() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             
@@ -1706,7 +1845,7 @@
                     isCurrentStationStop = false;
                 }
                   // 根据是否停靠修改状态
-                let displayStatus, statusClass;
+                let displayStatus, statusClass, shouldFadeOut = false;
                 
                 if (!isCurrentStationStop) {
                     displayStatus = '通过';
@@ -1716,9 +1855,24 @@
                     const statusInfo = calculateTrainStatus(train.time);
                     displayStatus = statusInfo.status;
                     statusClass = statusInfo.class;
+                    shouldFadeOut = statusInfo.shouldFadeOut;
                 }
-                  const stationsDisplay = renderStationsDisplay(train, index, !isCurrentStationStop);                  return `
-                    <div class="train-item ${displayStatus === '即将发车' ? 'next-departure' : ''} ${!isCurrentStationStop ? 'not-stopping' : ''}">
+                  const stationsDisplay = renderStationsDisplay(train, index, !isCurrentStationStop);
+
+                // 确定列车项的CSS类
+                let trainItemClasses = 'train-item';
+                if (displayStatus === '即将发车') {
+                    trainItemClasses += ' next-departure';
+                }
+                if (!isCurrentStationStop) {
+                    trainItemClasses += ' not-stopping';
+                }
+                if (shouldFadeOut) {
+                    trainItemClasses += ' pre-fade';
+                }
+
+                return `
+                    <div class="${trainItemClasses}" data-train-index="${index}">
                         <div class="train-row">
                             <div class="train-type ${typeClass}">${actualType}</div>
                             <div style="font-weight: bold; color: #fff;">${train.number}</div>
@@ -1732,10 +1886,21 @@
                     </div>
                 `;
             }).join('');
+              // 初始化同步滚动功能
+            setTimeout(initializeScrolling, 100);            // 清理之前的动画类
+            setTimeout(() => {
+                const slideUpElements = document.querySelectorAll('.train-item.slide-up');
+                slideUpElements.forEach(element => {
+                    element.classList.remove('slide-up');
+                });
+            }, 4200); // 2s淡出等待 + 2s上移动画 + 0.2s缓冲
             
-            // 初始化同步滚动功能
-            setTimeout(initializeScrolling, 100);
-        }        // 从12306获取列车数据
+            // 安排智能状态刷新
+            scheduleSmartStatusRefresh();
+            
+            // 管理列车淡出
+            setTimeout(manageFadeOutTrains, 500);
+        }// 从12306获取列车数据
         async function fetchTrainData() {
             try {
                 // 获取本地时区的今天日期 YYYY-MM-DD
@@ -2135,7 +2300,7 @@
                 refreshBtn.disabled = currentDataSource !== '12306';
                 refreshBtn.textContent = '刷新12306数据';
             }
-        }// 初始化和定时更新
+        }        // 初始化和定时更新
         async function init() {
             updateCurrentTime();
             initStationInput();
@@ -2153,9 +2318,16 @@
             
             renderTrainList();
             
+            // 每秒更新时间显示
             setInterval(updateCurrentTime, 1000);
             
-            console.log('系统已初始化，默认使用模拟数据。可手动切换到12306数据源。');
+            // 每30秒自动刷新列车状态（重新渲染列表以更新状态）
+            setInterval(() => {
+                console.log('🔄 自动刷新列车状态...');
+                renderTrainList();
+            }, 30000);
+            
+            console.log('系统已初始化，默认使用模拟数据。列车状态将每30秒自动刷新。');
         }
 
         // 页面卸载时清理资源
