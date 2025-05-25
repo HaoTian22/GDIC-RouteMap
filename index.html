@@ -1576,9 +1576,9 @@
                 type: "普通",
                 number: "C7501",
                 time: (() => {
-                    // 生成一个即将发车的时间（比当前时间晚2分钟）
+                    // 生成一个即将发车的时间（比当前时间晚1分钟）
                     const now = new Date();
-                    const soonTime = new Date(now.getTime() + 2 * 60000);
+                    const soonTime = new Date(now.getTime() + 1 * 60000);
                     return `${soonTime.getHours().toString().padStart(2, '0')}:${soonTime.getMinutes().toString().padStart(2, '0')}`;
                 })(),
                 destination: "小金口站",
@@ -1590,9 +1590,9 @@
                 type: "特快",
                 number: "C6881",
                 time: (() => {
-                    // 生成一个正在检票的时间（比当前时间晚8分钟）
+                    // 生成一个正在检票的时间（比当前时间晚3分钟）
                     const now = new Date();
-                    const checkTime = new Date(now.getTime() + 8 * 60000);
+                    const checkTime = new Date(now.getTime() + 3 * 60000);
                     return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
                 })(),
                 destination: "西平西站",
@@ -1604,7 +1604,7 @@
                 type: "快车",
                 number: "C6802",
                 time: (() => {
-                    // 生成一个正在检票的时间（比当前时间晚16分钟）
+                    // 生成一个即将检票的时间（比当前时间晚16分钟）
                     const now = new Date();
                     const checkTime = new Date(now.getTime() + 16 * 60000);
                     return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
@@ -1631,7 +1631,12 @@
             {
                 type: "特快",
                 number: "C6882",
-                time: "18:20",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚25分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 25 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
                 destination: "小金口站",
                 platform: "3",
                 status: "准点",
@@ -1640,7 +1645,12 @@
             {
                 type: "快车",
                 number: "C6803",
-                time: "18:25",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚30分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 30 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
                 destination: "松山湖北站",
                 platform: "3",
                 status: "准点",
@@ -1649,7 +1659,12 @@
             {
                 type: "普通",
                 number: "C7503",
-                time: "18:38",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚35分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 35 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
                 destination: "龙丰站",
                 platform: "2",
                 status: "准点",
@@ -1658,66 +1673,17 @@
             {
                 type: "特快",
                 number: "C6883",
-                time: "18:45",
+                time: (() => {
+                    // 生成一个预计准点的时间（比当前时间晚40分钟）
+                    const now = new Date();
+                    const checkTime = new Date(now.getTime() + 40 * 60000);
+                    return `${checkTime.getHours().toString().padStart(2, '0')}:${checkTime.getMinutes().toString().padStart(2, '0')}`;
+                })(),
                 destination: "佛山西站",
                 platform: "4",
                 status: "准点",
                 note: "1-8号车厢"
             },
-            {
-                type: "快车",
-                number: "C6804",
-                time: "18:50",
-                destination: "常平南站",
-                platform: "4",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "普通",
-                number: "C7504",
-                time: "19:05",
-                destination: "陈江南站",
-                platform: "1",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "快车",
-                number: "C6805",
-                time: "19:12",
-                destination: "广州莲花山站",
-                platform: "2",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "普通",
-                number: "C7505",
-                time: "19:25",
-                destination: "西湖东站",
-                platform: "3",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "特快",
-                number: "C6884",
-                time: "19:30",
-                destination: "番禺站",
-                platform: "1",
-                status: "准点",
-                note: "1-8号车厢"
-            },
-            {
-                type: "快车",
-                number: "C6806",
-                time: "19:45",
-                destination: "三水北站",
-                platform: "4",
-                status: "准点",
-                note: "1-8号车厢"
-            }
         ];
 
         // 列车数据（根据当前数据源使用12306数据或模拟数据）
@@ -1736,9 +1702,8 @@
                 month: '2-digit',
                 day: '2-digit'
             });
-            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
-        }        // 根据当前时间和发车时间计算列车状态
-        function calculateTrainStatus(departureTime) {
+            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;        }        // 计算跨天时间差的辅助函数
+        function calculateTimeDifferenceWithCrossDay(departureTime) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
@@ -1747,7 +1712,20 @@
             const departMinutes = hours * 60 + minutes;
 
             // 计算时间差（分钟）
-            const timeDiff = departMinutes - currentMinutes;
+            let timeDiff = departMinutes - currentMinutes;
+
+            // 处理跨天情况：如果时间差小于-12小时，说明列车时间是第二天的
+            if (timeDiff < -720) { // -12 * 60 = -720分钟
+                timeDiff += 1440; // 加上一天的分钟数 (24 * 60 = 1440)
+                // console.log(`🌅 检测到跨天列车时间 ${departureTime}，调整时间差: ${timeDiff}分钟`);
+            }
+            return timeDiff;
+        }
+
+        // 根据当前时间和发车时间计算列车状态
+        function calculateTrainStatus(departureTime) {
+            // 使用新的跨天时间差计算函数
+            const timeDiff = calculateTimeDifferenceWithCrossDay(departureTime);
 
             if (timeDiff <= -3) {
                 // 已发车超过3分钟，准备淡出
@@ -1836,9 +1814,7 @@
             }
 
             return false; // 状态无变化
-        }
-
-        // 智能状态刷新 - 逐个更新列车状态，不重新渲染整个列表
+        }        // 智能状态刷新 - 逐个更新列车状态，不重新渲染整个列表
         function scheduleSmartStatusRefresh() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1849,9 +1825,8 @@
             let hasStatusChanges = false;
 
             trainData.forEach(train => {
-                const [hours, minutes] = train.time.split(':').map(Number);
-                const trainMinutes = hours * 60 + minutes;
-                const timeDiff = trainMinutes - currentMinutes;
+                // 使用新的跨天时间差计算函数
+                const timeDiff = calculateTimeDifferenceWithCrossDay(train.time);
 
                 // 检查各个状态转换的临界点
                 const statusChangePoints = [
@@ -1861,6 +1836,7 @@
                     timeDiff + 3   // 发车后3分钟（淡出时机）
                 ].filter(diff => diff > 0 && diff < minTimeDiff);
 
+                // 找到最近的状态变化的剩余时间nearestStatusChange
                 if (statusChangePoints.length > 0) {
                     const nearestChange = Math.min(...statusChangePoints);
                     if (nearestChange < minTimeDiff) {
@@ -1911,25 +1887,19 @@
                     console.log('ℹ️ 无列车状态变化');
                 }
 
-                // 管理需要淡出的列车（仍需要重新渲染来移除列车）
-                manageFadeOutTrains();
-
                 scheduleSmartStatusRefresh(); // 递归安排下次刷新
             }, refreshInterval);
         }        // 管理列车的淡出和移除
         function manageFadeOutTrains() {
-            const now = new Date();
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-            // 标记需要淡出的列车
+            // 循环标记需要淡出的列车
             const trainsToFadeOut = [];
             trainData.forEach((train, index) => {
-                const [hours, minutes] = train.time.split(':').map(Number);
-                const trainMinutes = hours * 60 + minutes;
-                const timeDiff = trainMinutes - currentMinutes;
+                // 使用新的跨天时间差计算函数
+                const timeDiff = calculateTimeDifferenceWithCrossDay(train.time);
 
                 if (timeDiff <= -3) {
                     trainsToFadeOut.push(index);
+                    console.log(`🚆 列车${train.number}已发车超过3分钟，准备淡出`);
                 }
             });
 
@@ -1970,17 +1940,11 @@
                 // 如果没有需要淡出的列车，不进行任何操作
                 console.log('ℹ️ 无需要淡出的列车');
             }
-        }
-
-        function getNextDeparture() {
-            const now = new Date();
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
+        }        function getNextDeparture() {
             // 查找真正"即将发车"状态的列车（4分钟内发车）
             for (let train of trainData) {
-                const [hours, minutes] = train.time.split(':').map(Number);
-                const trainMinutes = hours * 60 + minutes;
-                const timeDiff = trainMinutes - currentMinutes;
+                // 使用新的跨天时间差计算函数
+                const timeDiff = calculateTimeDifferenceWithCrossDay(train.time);
 
                 // 只有在4分钟内即将发车的列车才被标记为"即将发车"
                 if (timeDiff > 0 && timeDiff <= 4) {
@@ -2355,11 +2319,14 @@
                 } else {
                     // 其他列车：正常间隔
                     departMinutes = currentMinutes + 15 + ((i - 3) * 20);
-                }
-
-                const hours = Math.floor(departMinutes / 60) % 24;
+                }                const hours = Math.floor(departMinutes / 60) % 24;
                 const minutes = departMinutes % 60;
-                timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                
+                // 处理跨天情况：确保时间为正值
+                const normalizedHours = hours < 0 ? hours + 24 : hours;
+                const normalizedMinutes = minutes < 0 ? minutes + 60 : minutes;
+                
+                timeString = `${normalizedHours.toString().padStart(2, '0')}:${normalizedMinutes.toString().padStart(2, '0')}`;
 
                 const trainTypes = ['普通', '快车', '特快'];
                 const trainType = trainTypes[i % 3];
