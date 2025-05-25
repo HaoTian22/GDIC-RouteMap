@@ -700,8 +700,7 @@
             <div class="station-suggestions" id="stationSuggestions"></div>
         </div>        <div class="station-name">出发信息</div>
 
-        <div style="margin-top: 10px;">
-            <div class="data-source-selector">
+        <div style="margin-top: 10px;">            <div class="data-source-selector">
                 <button class="data-source-btn active" id="simulationDataBtn" onclick="setDataSource('simulation')">
                     模拟数据
                 </button>
@@ -1112,11 +1111,52 @@
             scrollManager.startGlobalScrolling();
         }        // 12306 API集成
         class Railway12306API {            constructor() {
-                this.stationCodes = new Map(); // 存储站点名称到代码的映射                // 生产环境使用相对路径，开发环境使用localhost
+                this.stationCodes = new Map(); // 存储站点名称到代码的映射
+                this.isInitialized = false; // 初始化状态标记
+                this.initializationPromise = null; // 初始化Promise
+                
+                // 生产环境使用相对路径，开发环境使用localhost
                 this.proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                     ? 'http://localhost:3001' 
                     : window.location.origin; // 在生产环境使用当前域名
-                this.loadStationCodes();
+                
+                // 启动初始化过程，但不在构造函数中等待
+                this.initializationPromise = this.initialize();
+            }
+            
+            // 初始化方法，确保车站代码加载完成
+            async initialize() {
+                if (this.isInitialized) {
+                    return true;
+                }
+                
+                try {
+                    await this.loadStationCodes();
+                    this.isInitialized = true;
+                    console.log('✅ Railway12306API 初始化完成');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Railway12306API 初始化失败:', error);
+                    this.isInitialized = false;
+                    throw error;
+                }
+            }
+            
+            // 确保已初始化的方法
+            async ensureInitialized() {
+                if (this.isInitialized) {
+                    return true;
+                }
+                
+                if (this.initializationPromise) {
+                    await this.initializationPromise;
+                    return this.isInitialized;
+                }
+                
+                // 如果没有初始化Promise，重新初始化
+                this.initializationPromise = this.initialize();
+                await this.initializationPromise;
+                return this.isInitialized;
             }
 
             // 加载车站代码信息
@@ -1186,8 +1226,11 @@
                 
                 console.warn(`未找到车站代码: ${stationName}，可用车站代码数量: ${this.stationCodes.size}`);
                 return null;
-            }// 查询列车余票信息            
+            }            // 查询列车余票信息            
             async queryTrains(fromStation, toStation, date) {
+                // 确保已初始化
+                await this.ensureInitialized();
+                
                 const fromCode = this.getStationCode(fromStation);
                 const toCode = this.getStationCode(toStation);
                 
@@ -1248,6 +1291,9 @@
                 }).filter(train => train !== null);
             }            // 查询列车详细信息
             async queryTrainDetails(trainNo, fromCode, toCode, date) {
+                // 确保已初始化
+                await this.ensureInitialized();
+                
                 try {
                     console.log(`查询列车详细信息: ${trainNo}`);
                     
@@ -2125,10 +2171,8 @@
                 setTimeout(() => {
                     trainItem.style.transform = '';
                 }, 200);
-            }        });
-
-        // 设置数据源
-        function setDataSource(source) {
+            }        });        // 设置数据源
+        async function setDataSource(source) {
             console.log('切换数据源到:', source);
             
             // 更新当前数据源
@@ -2160,8 +2204,39 @@
                 api12306Btn.classList.add('active');
                 refreshBtn.disabled = false;
                 
-                // 尝试获取12306数据
-                refreshTrainData();
+                // 显示初始化状态
+                dataSourceDisplay.textContent = '数据源: 12306 初始化中...';
+                refreshBtn.disabled = true;
+                refreshBtn.textContent = '初始化中...';
+                
+                try {
+                    // 确保12306 API已初始化
+                    console.log('🔄 确保12306 API已初始化...');
+                    await railway12306.ensureInitialized();
+                    console.log('✅ 12306 API初始化完成，开始获取数据');
+                    
+                    // 恢复按钮状态
+                    refreshBtn.disabled = false;
+                    refreshBtn.textContent = '刷新12306数据';
+                    
+                    // 尝试获取12306数据
+                    await refreshTrainData();
+                } catch (error) {
+                    console.error('❌ 12306 API初始化失败:', error);
+                    
+                    // 显示错误提示
+                    alert('12306 API初始化失败，请检查网络连接后重试\n错误信息: ' + error.message);
+                    
+                    // 回退到模拟数据
+                    simulationBtn.classList.add('active');
+                    api12306Btn.classList.remove('active');
+                    refreshBtn.disabled = true;
+                    refreshBtn.textContent = '刷新12306数据';
+                    currentDataSource = 'simulation';
+                    trainData = [...simulationTrainData];
+                    dataSourceDisplay.textContent = '数据源: 模拟数据 (初始化失败)';
+                    renderTrainList();
+                }
             }
         }
 
