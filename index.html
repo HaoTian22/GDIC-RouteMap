@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +32,9 @@
             font-size: 2em;
             margin-bottom: 10px;
             color: #fff;
-        }        .station-name {
+        }
+
+        .station-name {
             font-size: 1.5em;
             color: #fff;
         }
@@ -71,15 +74,18 @@
             overflow-y: auto;
             z-index: 1000;
             min-width: 200px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: none;
-        }        .station-suggestion-item {
+        }
+
+        .station-suggestion-item {
             padding: 10px 15px;
             cursor: pointer;
             color: #333;
             border-bottom: 1px solid #eee;
             transition: background-color 0.2s;
-            user-select: none; /* 防止文本选择 */
+            user-select: none;
+            /* 防止文本选择 */
         }
 
         .station-suggestion-item:hover {
@@ -99,7 +105,7 @@
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .board-header {
@@ -146,18 +152,22 @@
 
         .train-row:hover {
             background: rgba(102, 126, 234, 0.1);
-        }        .train-row.next-departure {
+        }
+
+        .train-row.next-departure {
             background: transparent;
         }
 
         /* 不停靠列车的样式 */
         .train-item.not-stopping {
-            min-height: 60px; /* 缩小行高 */
+            min-height: 60px;
+            /* 缩小行高 */
         }
 
         .train-item.not-stopping .train-row {
             grid-template-columns: 80px 120px 100px 150px 80px 120px auto;
-            padding: 10px; /* 减小内边距 */
+            padding: 10px;
+            /* 减小内边距 */
             align-items: center;
         }
 
@@ -165,7 +175,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 40px; /* 缩小高度 */
+            min-height: 40px;
+            /* 缩小高度 */
             background: rgba(149, 165, 166, 0.1);
             border-radius: 5px;
             border: 1px dashed rgba(149, 165, 166, 0.3);
@@ -177,7 +188,9 @@
             font-weight: 500;
             text-align: center;
             padding: 8px 15px;
-        }.stations-display {
+        }
+
+        .stations-display {
             display: flex;
             flex-direction: column;
             gap: 3px;
@@ -185,13 +198,18 @@
             max-width: 100%;
             overflow: hidden;
             position: relative;
-        }        .stations-track {
+        }
+
+        .stations-track {
             display: flex;
-            align-items: flex-start; /* 改为顶部对齐 */
+            align-items: flex-start;
+            /* 改为顶部对齐 */
             gap: 2px;
             position: relative;
-            height: 90px; /* 从100px改为90px，稍微压缩高度 */
-            padding-top: 15px; /* 添加顶部内边距，为站名留出空间 */
+            height: 90px;
+            /* 从100px改为90px，稍微压缩高度 */
+            padding-top: 15px;
+            /* 添加顶部内边距，为站名留出空间 */
             transition: transform 0.5s ease;
             will-change: transform;
         }
@@ -200,7 +218,9 @@
             overflow: hidden;
             width: 100%;
             position: relative;
-        }        .stations-track.scrolling {
+        }
+
+        .stations-track.scrolling {
             animation: autoScroll var(--scroll-duration) linear forwards;
         }
 
@@ -214,8 +234,13 @@
         }
 
         @keyframes autoScroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(var(--scroll-distance)); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(var(--scroll-distance));
+            }
         }
 
         .scroll-indicator {
@@ -241,7 +266,9 @@
             align-items: center;
             min-width: 40px;
             position: relative;
-        }        .station-dot {
+        }
+
+        .station-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -249,7 +276,8 @@
             border: 1px solid #34495e;
             position: relative;
             z-index: 2;
-            margin-top: -8px; /* 向上移动站点圆点 */
+            margin-top: -8px;
+            /* 向上移动站点圆点 */
         }
 
         .station-dot.stop {
@@ -266,11 +294,21 @@
         }
 
         @keyframes currentStation {
-            0%, 100% { box-shadow: 0 0 8px rgba(231, 76, 60, 0.6); }
-            50% { box-shadow: 0 0 15px rgba(231, 76, 60, 1); }
-        }        .station-name-label {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 15px rgba(231, 76, 60, 1);
+            }
+        }
+
+        .station-name-label {
             position: absolute;
-            top: 4px; /* 从12px改为4px，向上移动8px */
+            top: 4px;
+            /* 从12px改为4px，向上移动8px */
             padding-right: 2px;
             font-size: 14px;
             color: #95a5a6;
@@ -282,7 +320,9 @@
             height: 80px;
             overflow: hidden;
             line-height: 1;
-        }        .station-name-label.highlight {
+        }
+
+        .station-name-label.highlight {
             color: #ffd700;
             font-weight: bold;
         }
@@ -296,10 +336,14 @@
             background: #555;
             border-color: #555;
             box-shadow: none;
-        }.track-line {
+        }
+
+        .track-line {
             position: absolute;
-            top: 12%; /* 从50%改为35%，向上移动轨道线 */
-            left: 20px; /* 从第一个站点中心开始 */
+            top: 12%;
+            /* 从50%改为35%，向上移动轨道线 */
+            left: 20px;
+            /* 从第一个站点中心开始 */
             height: 2px;
             background: linear-gradient(90deg, #34495e 0%, #2c3e50 50%, #34495e 100%);
             z-index: 1;
@@ -314,8 +358,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { border-left-color: #ffd700; }
-            50% { border-left-color: #ff8c00; }
+
+            0%,
+            100% {
+                border-left-color: #ffd700;
+            }
+
+            50% {
+                border-left-color: #ff8c00;
+            }
         }
 
         .train-type {
@@ -324,7 +375,9 @@
             font-size: 12px;
             font-weight: bold;
             text-align: center;
-        }        .express {
+        }
+
+        .express {
             background: #e74c3c;
             color: white;
         }
@@ -376,7 +429,8 @@
             border-radius: 5px;
             text-align: center;
             font-weight: bold;
-        }        
+        }
+
         .status {
             padding: 5px 10px;
             border-radius: 15px;
@@ -401,33 +455,59 @@
                 transform: scale(1.1);
                 box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
             }
+
             100% {
                 transform: scale(1);
                 box-shadow: none;
             }
-        }.on-time { background: #27ae60; color: white; }        .delay { background: #e74c3c; color: white; }        .boarding { 
-            background: #ebbc00; 
-            color: white; 
+        }
+
+        .on-time {
+            background: #27ae60;
+            color: white;
+        }
+
+        .delay {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .boarding {
+            background: #ebbc00;
+            color: white;
             font-weight: bold;
             animation: slowBreathing 3s ease-in-out infinite;
         }
-        .boarding.boarding-soon { 
+
+        .boarding.boarding-soon {
             animation: blink 1.5s infinite;
         }
-        .departed { background: #7f8c8d; color: white; }
-        .passing { background: #95a5a6; color: white; }/* 已发车超过3分钟的列车动画 */
+
+        .departed {
+            background: #7f8c8d;
+            color: white;
+        }
+
+        .passing {
+            background: #95a5a6;
+            color: white;
+        }
+
+        /* 已发车超过3分钟的列车动画 */
         .train-item.fade-out {
             animation: fadeOutSmooth 1.5s ease forwards;
             pointer-events: none !important;
         }
+
         /* 列车消失补充动画 */
         @keyframes fadeOutSmooth {
-            0% { 
-                opacity: 0.7; 
+            0% {
+                opacity: 0.7;
                 transform: translateX(0) scale(1);
             }
-            100% { 
-                opacity: 0; 
+
+            100% {
+                opacity: 0;
                 transform: translateX(-20px) scale(0.95);
             }
         }
@@ -440,13 +520,16 @@
         }
 
         @keyframes slideUpSmooth {
-            0% { 
+            0% {
                 transform: translateY(0px);
             }
-            100% { 
+
+            100% {
                 transform: translateY(-110%);
             }
-        }        /* 淡出前的预警状态 */
+        }
+
+        /* 淡出前的预警状态 */
         .train-item.pre-fade {
             opacity: 0.7;
             transition: opacity 1s ease;
@@ -456,7 +539,7 @@
             background: #16213e;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .route-title {
@@ -484,7 +567,9 @@
             padding: 10px;
             border-radius: 8px;
             text-align: center;
-        }        .express-title {
+        }
+
+        .express-title {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
         }
@@ -580,64 +665,89 @@
             font-size: 11px;
             font-weight: bold;
             animation: blink 1.5s infinite;
-        }        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }        /* 正在检票的缓慢呼吸灯效果 - 黄色和橙色之间变化 */
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        /* 正在检票的缓慢呼吸灯效果 - 黄色和橙色之间变化 */
         @keyframes slowBreathing {
-            0%,20%,80%, 100% { 
+
+            0%,
+            20%,
+            80%,
+            100% {
                 background: #ebbc00;
                 box-shadow: 0 0 5px rgba(241, 196, 15, 0.6);
             }
-            50% { 
+
+            50% {
                 background: #e67e22;
                 box-shadow: 0 0 15px rgba(230, 126, 34, 1);
             }
-        }@media (max-width: 768px) {
-            .board-header, .train-row {
+        }
+
+        @media (max-width: 768px) {
+
+            .board-header,
+            .train-row {
                 grid-template-columns: 50px 80px 70px 100px 50px 70px auto;
                 font-size: 11px;
             }
-            
+
             .stations-display {
                 min-width: 150px;
                 max-width: 250px;
             }
-            
+
             .station-point {
                 min-width: 25px;
             }
-            
+
             .station-name-label {
                 font-size: 7px;
                 width: 25px;
                 height: 20px;
             }
-            
+
             .stations-row {
                 flex-wrap: wrap;
                 gap: 10px;
             }
-            
+
             .station {
                 min-width: 60px;
             }
-        }        @media (max-width: 480px) {
+        }
+
+        @media (max-width: 480px) {
             .stations-display {
                 min-width: 120px;
                 max-width: 180px;
             }
-            
+
             .station-point {
                 min-width: 20px;
             }
-            
+
             .station-name-label {
                 font-size: 6px;
                 width: 20px;
                 height: 18px;
             }
-        }        .direction-selector {
+        }
+
+        .direction-selector {
             display: flex;
             justify-content: center;
             gap: 0;
@@ -667,7 +777,7 @@
         .direction-btn.active {
             background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
             color: #333;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .direction-btn:first-child {
@@ -691,7 +801,9 @@
             background: linear-gradient(135deg, #ffed4a 0%, #ffd700 100%);
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-        }        .refresh-btn:disabled {
+        }
+
+        .refresh-btn:disabled {
             background: #95a5a6;
             color: #7f8c8d;
             cursor: not-allowed;
@@ -704,7 +816,9 @@
             background: #95a5a6;
             transform: none;
             box-shadow: none;
-        }.data-source {
+        }
+
+        .data-source {
             margin-left: 10px;
             font-size: 12px;
             opacity: 0.8;
@@ -740,7 +854,7 @@
         .data-source-btn.active {
             background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
             color: #333;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .data-source-btn:first-child {
@@ -748,9 +862,11 @@
         }
     </style>
 </head>
-<body>    <div class="header">
+
+<body>
+    <div class="header">
         <div class="current-time" id="currentTime"></div>
-        
+
         <!-- Direction Selector -->
         <div class="direction-selector">
             <button class="direction-btn" id="zhaoqingBtn" onclick="setDirection('zhaoqing')">
@@ -760,18 +876,16 @@
                 惠州方向
             </button>
         </div>
-        
-        <div class="station-input-container" style="position: relative;">
-            <input type="text" 
-                   class="station-input" 
-                   id="currentStationInput" 
-                   value="肇庆站" 
-                   placeholder="请输入当前站点名称"
-                   autocomplete="off">
-            <div class="station-suggestions" id="stationSuggestions"></div>
-        </div>        <div class="station-name">出发信息</div>
 
-        <div style="margin-top: 10px;">            <div class="data-source-selector">
+        <div class="station-input-container" style="position: relative;">
+            <input type="text" class="station-input" id="currentStationInput" value="肇庆站" placeholder="请输入当前站点名称"
+                autocomplete="off">
+            <div class="station-suggestions" id="stationSuggestions"></div>
+        </div>
+        <div class="station-name">出发信息</div>
+
+        <div style="margin-top: 10px;">
+            <div class="data-source-selector">
                 <button class="data-source-btn active" id="simulationDataBtn" onclick="setDataSource('simulation')">
                     模拟数据
                 </button>
@@ -779,8 +893,7 @@
                     12306数据
                 </button>
             </div>
-            <button id="refreshDataBtn" onclick="refreshTrainData()" 
-                    class="refresh-btn" disabled>
+            <button id="refreshDataBtn" onclick="refreshTrainData()" class="refresh-btn" disabled>
                 刷新12306数据
             </button>
             <span id="dataSource" class="data-source">数据源: 模拟数据</span>
@@ -803,18 +916,18 @@
 
     <script>        // 所有站点按顺序排列（基于真实C7514/C7515列车案例）
         const allStations = [
-            "肇庆站", "端州站", "鼎湖山站", "鼎湖东站", "四会站", "大旺站", 
-            "云东海站", "三水北站", "狮山北站", "狮山站", "佛山西站", "张槎站", 
-            "顺德北站", "北滘西站", "陈村站", "番禺站", "广州长隆站", "东环站", 
-            "官桥北站", "广州莲花山站", "麻涌站", "东莞西站", "道滘站", "西平西站", 
-            "东城南站", "寮步站", "松山湖北站", "大朗镇站", "常平南站", "常平东站", 
-            "樟木头东站", "银瓶站", "沥林北站", "陈江南站", "惠环站", "龙丰站", 
+            "肇庆站", "端州站", "鼎湖山站", "鼎湖东站", "四会站", "大旺站",
+            "云东海站", "三水北站", "狮山北站", "狮山站", "佛山西站", "张槎站",
+            "顺德北站", "北滘西站", "陈村站", "番禺站", "广州长隆站", "东环站",
+            "官桥北站", "广州莲花山站", "麻涌站", "东莞西站", "道滘站", "西平西站",
+            "东城南站", "寮步站", "松山湖北站", "大朗镇站", "常平南站", "常平东站",
+            "樟木头东站", "银瓶站", "沥林北站", "陈江南站", "惠环站", "龙丰站",
             "西湖东站", "云山站", "小金口站"
         ];        // 快车停靠站点（基于实际快车停靠模式）
         const expressStops = new Set([
-            "肇庆站", "鼎湖东站", "大旺站", "三水北站", "佛山西站", 
-            "番禺站", "广州长隆站", "广州莲花山站", "东莞西站", 
-            "西平西站", "松山湖北站", "常平南站", "陈江南站", "西湖东站", 
+            "肇庆站", "鼎湖东站", "大旺站", "三水北站", "佛山西站",
+            "番禺站", "广州长隆站", "广州莲花山站", "东莞西站",
+            "西平西站", "松山湖北站", "常平南站", "陈江南站", "西湖东站",
             "云山站", "小金口站"
         ]);        // 特快停靠站点（停靠更少站点）
         const superExpressStops = new Set([
@@ -864,15 +977,15 @@
         // 设置方向
         function setDirection(direction) {
             currentDirection = direction;
-            
+
             // 更新按钮状态
             document.getElementById('huizhouBtn').classList.toggle('active', direction === 'huizhou');
             document.getElementById('zhaoqingBtn').classList.toggle('active', direction === 'zhaoqing');
-            
+
 
             // 重新渲染列车列表
             renderTrainList();
-            
+
             // 重新启动智能状态刷新
             if (window.statusRefreshTimer) {
                 clearTimeout(window.statusRefreshTimer);
@@ -881,7 +994,7 @@
                 scheduleSmartStatusRefresh();
                 console.log('🔄 智能状态刷新已重新启动（方向切换）');
             }, 500);
-            
+
             console.log(`方向已切换为: ${direction === 'huizhou' ? '惠州方向' : '肇庆方向'}`);
         }// 滚动管理器
         class ScrollManager {
@@ -893,33 +1006,33 @@
                 this.isGloballyPaused = false;
                 this.hasUserInteraction = false;
                 this.finishedScrolls = new Set(); // 记录已完成滚动的轨道
-            }            setupScrolling(trackElement, containerElement) {
+            } setupScrolling(trackElement, containerElement) {
                 const trackId = trackElement.id;
-                
+
                 // 清除之前的状态
                 this.clearTrackScrolling(trackId);
-                
+
                 // 检查是否需要滚动
                 const containerWidth = containerElement.offsetWidth;
                 const trackWidth = trackElement.scrollWidth;
                 const scrollIndicator = containerElement.querySelector('.scroll-indicator');
-                
+
                 if (trackWidth <= containerWidth) {
                     scrollIndicator.classList.remove('visible');
                     return;
                 }
-                
+
                 scrollIndicator.classList.add('visible');
-                
+
                 // 计算滚动距离和持续时间
                 const scrollDistance = trackWidth - containerWidth + 80; // 额外100px确保完全显示
                 const scrollSpeed = 30; // 固定速度：50像素/秒
                 const scrollDuration = scrollDistance / scrollSpeed; // 根据距离和速度计算时间
-                
+
                 // 设置CSS变量
                 trackElement.style.setProperty('--scroll-distance', `-${scrollDistance}px`);
                 trackElement.style.setProperty('--scroll-duration', `${scrollDuration}s`);
-                
+
                 // 存储元素信息
                 this.scrollElements.set(trackId, {
                     trackElement,
@@ -928,67 +1041,67 @@
                     duration: scrollDuration,
                     isFinished: false
                 });
-                
+
                 // 添加动画结束监听
                 this.addAnimationEndListener(trackElement, trackId);
-                
+
                 // 添加交互事件
                 this.addInteractionEvents(trackElement, containerElement, trackId);
-            }            addAnimationEndListener(trackElement, trackId) {
+            } addAnimationEndListener(trackElement, trackId) {
                 const onAnimationEnd = (event) => {
                     // 确保是这个元素自己的动画结束，不是子元素的
                     if (event.target !== trackElement) return;
-                    
+
                     console.log(`轨道 ${trackId} 滚动完成`);
-                    
+
                     // 动画完成，标记为已完成
                     if (this.scrollElements.has(trackId)) {
                         this.scrollElements.get(trackId).isFinished = true;
                         this.finishedScrolls.add(trackId);
-                        
+
                         // 移除滚动类，但设置最终的transform位置以保持在结尾
                         trackElement.classList.remove('scrolling');
                         const finalPosition = trackElement.style.getPropertyValue('--scroll-distance');
                         trackElement.style.transform = `translateX(${finalPosition})`;
-                        
+
                         // 检查是否所有需要滚动的轨道都已完成
                         this.checkAllScrollsFinished();
                     }
                 };
-                
+
                 trackElement.addEventListener('animationend', onAnimationEnd);
-                
+
                 // 存储事件处理器以便后续清理
                 if (this.scrollElements.has(trackId)) {
                     this.scrollElements.get(trackId).animationHandler = onAnimationEnd;
                 }
-            }checkAllScrollsFinished() {
+            } checkAllScrollsFinished() {
                 const needsScrollElements = Array.from(this.scrollElements.values())
                     .filter(data => data.needsScroll);
-                    
+
                 const finishedCount = needsScrollElements.filter(data => data.isFinished).length;
                 const totalCount = needsScrollElements.length;
-                
+
                 console.log(`滚动进度: ${finishedCount}/${totalCount} 轨道已完成`);
-                    
+
                 const allFinished = needsScrollElements.every(data => data.isFinished);
-                
+
                 if (allFinished && needsScrollElements.length > 0) {
                     console.log('所有轨道滚动完成，5秒后重置');
                     // 所有轨道都完成了滚动，等待一段时间后重置
                     if (this.globalResetTimer) {
                         clearTimeout(this.globalResetTimer);
                     }
-                    
+
                     this.globalResetTimer = setTimeout(() => {
                         this.resetAllScrollsToStart();
                     }, 5000); // 等待5秒后重置，让用户有足够时间查看
                 }
-            }            resetAllScrollsToStart() {
+            } resetAllScrollsToStart() {
                 if (this.isGloballyPaused) return;
-                
+
                 console.log('重置所有滚动到起始位置');
-                
+
                 // 添加重置动画类，平滑过渡回起始位置
                 this.scrollElements.forEach((data, trackId) => {
                     if (data.needsScroll) {
@@ -996,10 +1109,10 @@
                         data.isFinished = false;
                     }
                 });
-                
+
                 // 清空已完成集合
                 this.finishedScrolls.clear();
-                
+
                 // 等待重置动画完成后移除过渡类并重新开始滚动
                 setTimeout(() => {
                     this.scrollElements.forEach((data, trackId) => {
@@ -1009,20 +1122,20 @@
                             data.trackElement.style.transform = 'translateX(0)';
                         }
                     });
-                    
+
                     // 重新开始滚动
                     setTimeout(() => {
                         this.startGlobalScrolling();
                     }, 500); // 再等待0.5秒后开始新一轮滚动
                 }, 800); // 等待重置动画完成（0.8秒）
-            }startGlobalScrolling() {
+            } startGlobalScrolling() {
                 // 清除之前的全局计时器
                 if (this.globalScrollTimer) {
                     clearTimeout(this.globalScrollTimer);
                 }
-                
+
                 console.log('准备开始全局滚动，2秒后启动');
-                
+
                 // 延迟开始所有滚动
                 this.globalScrollTimer = setTimeout(() => {
                     if (!this.isGloballyPaused) {
@@ -1041,7 +1154,7 @@
             pauseAllScrolling() {
                 this.isGloballyPaused = true;
                 this.hasUserInteraction = true;
-                
+
                 // 暂停所有滚动
                 this.scrollElements.forEach((data) => {
                     data.trackElement.classList.add('paused');
@@ -1058,22 +1171,22 @@
                 this.globalPauseTimer = setTimeout(() => {
                     this.isGloballyPaused = false;
                     this.hasUserInteraction = false;
-                    
+
                     // 恢复所有滚动
                     this.scrollElements.forEach((data) => {
                         data.trackElement.classList.remove('paused');
                     });
                 }, delay);
-            }            clearTrackScrolling(trackId) {
+            } clearTrackScrolling(trackId) {
                 if (this.scrollElements.has(trackId)) {
                     const data = this.scrollElements.get(trackId);
                     data.trackElement.classList.remove('scrolling', 'paused', 'resetting');
-                    
+
                     // 移除动画监听器
                     if (data.animationHandler) {
                         data.trackElement.removeEventListener('animationend', data.animationHandler);
                     }
-                    
+
                     this.scrollElements.delete(trackId);
                     this.finishedScrolls.delete(trackId);
                 }
@@ -1085,12 +1198,12 @@
                     clearTimeout(this.globalScrollTimer);
                     this.globalScrollTimer = null;
                 }
-                
+
                 if (this.globalPauseTimer) {
                     clearTimeout(this.globalPauseTimer);
                     this.globalPauseTimer = null;
                 }
-                
+
                 if (this.globalResetTimer) {
                     clearTimeout(this.globalResetTimer);
                     this.globalResetTimer = null;
@@ -1098,13 +1211,13 @@
                 this.scrollElements.forEach((data, trackId) => {
                     data.trackElement.classList.remove('scrolling', 'paused', 'resetting');
                     data.trackElement.style.transform = 'translateX(0)';
-                    
+
                     // 移除动画监听器
                     if (data.animationHandler) {
                         data.trackElement.removeEventListener('animationend', data.animationHandler);
                     }
                 });
-                
+
                 this.scrollElements.clear();
                 this.finishedScrolls.clear();
                 this.isGloballyPaused = false;
@@ -1116,11 +1229,11 @@
                 containerElement.addEventListener('mouseenter', () => {
                     this.pauseAllScrolling();
                 });
-                
+
                 containerElement.addEventListener('mouseleave', () => {
                     this.resumeAllScrolling();
                 });
-                
+
                 // 触摸事件 - 影响全局
                 let startX = 0;
                 let currentX = 0;
@@ -1136,18 +1249,18 @@
 
                 containerElement.addEventListener('touchmove', (e) => {
                     if (!isDragging) return;
-                    
+
                     currentX = e.touches[0].clientX;
                     const deltaX = currentX - startX;
-                    
+
                     // 手动滚动当前元素
                     const currentTransform = trackElement.style.transform.match(/translateX\(([^)]+)\)/);
                     const currentOffset = currentTransform ? parseFloat(currentTransform[1]) : 0;
                     const newOffset = Math.min(0, Math.max(
-                        parseFloat(trackElement.style.getPropertyValue('--scroll-distance')), 
+                        parseFloat(trackElement.style.getPropertyValue('--scroll-distance')),
                         currentOffset + deltaX
                     ));
-                    
+
                     trackElement.style.transform = `translateX(${newOffset}px)`;
                     startX = currentX;
                     e.preventDefault();
@@ -1162,10 +1275,10 @@
 
         const scrollManager = new ScrollManager();        // 当前站点变量
         let currentStation = "肇庆站";
-        
+
         // 当前数据源
         let currentDataSource = 'simulation'; // 'simulation' 或 '12306'
-        
+
         function initializeScrolling() {
             // 清除之前的所有滚动状态
             scrollManager.clearAllScrolling();
@@ -1174,35 +1287,36 @@
             trainData.forEach((_, index) => {
                 const trackElement = document.getElementById(`track-${index}`);
                 const containerElement = document.getElementById(`scroll-container-${index}`);
-                
+
                 if (trackElement && containerElement) {
                     scrollManager.setupScrolling(trackElement, containerElement);
                 }
             });
-            
+
             // 启动全局同步滚动
             scrollManager.startGlobalScrolling();
         }        // 12306 API集成
-        class Railway12306API {            constructor() {
+        class Railway12306API {
+            constructor() {
                 this.stationCodes = new Map(); // 存储站点名称到代码的映射
                 this.isInitialized = false; // 初始化状态标记
                 this.initializationPromise = null; // 初始化Promise
-                
+
                 // 生产环境使用相对路径，开发环境使用localhost
-                this.proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                    ? 'http://localhost:3001' 
+                this.proxyBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3001'
                     : window.location.origin; // 在生产环境使用当前域名
-                
+
                 // 启动初始化过程，但不在构造函数中等待
                 this.initializationPromise = this.initialize();
             }
-            
+
             // 初始化方法，确保车站代码加载完成
             async initialize() {
                 if (this.isInitialized) {
                     return true;
                 }
-                
+
                 try {
                     await this.loadStationCodes();
                     this.isInitialized = true;
@@ -1214,18 +1328,18 @@
                     throw error;
                 }
             }
-            
+
             // 确保已初始化的方法
             async ensureInitialized() {
                 if (this.isInitialized) {
                     return true;
                 }
-                
+
                 if (this.initializationPromise) {
                     await this.initializationPromise;
                     return this.isInitialized;
                 }
-                
+
                 // 如果没有初始化Promise，重新初始化
                 this.initializationPromise = this.initialize();
                 await this.initializationPromise;
@@ -1237,51 +1351,53 @@
                 try {
                     console.log('开始加载车站代码...');
                     const response = await fetch(`${this.proxyBaseUrl}/api/station-codes`);
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
+
                     const text = await response.text();
-                      // 解析station_names字符串
+                    // 解析station_names字符串
                     const match = text.match(/var station_names ='(.+)';/);
                     if (match) {
                         const stationData = match[1];
                         const stations = stationData.split('@').filter(item => item.length > 0);
-                        
+
                         stations.forEach(station => {
                             const parts = station.split('|');
                             if (parts.length >= 3) {
                                 const stationName = parts[1]; // 中文名
                                 const stationCode = parts[2]; // 英文代码
-                                
+
                                 // 为站名添加"站"字后缀，以匹配我们的站点名称格式
                                 const stationNameWithSuffix = stationName.endsWith('站') ? stationName : stationName + '站';
                                 this.stationCodes.set(stationNameWithSuffix, stationCode);
-                                
+
                                 // 同时也保存不带"站"字的映射，以防万一
                                 this.stationCodes.set(stationName, stationCode);
                             }
                         });
-                        
-                        console.log('车站代码加载完成，共', this.stationCodes.size, '个车站');                    } else {
+
+                        console.log('车站代码加载完成，共', this.stationCodes.size, '个车站');
+                    } else {
                         throw new Error('无法解析车站代码数据');
                     }
                 } catch (error) {
                     console.error('加载车站代码失败:', error);
                     throw error; // 重新抛出错误，强制失败
-                }            }            // 获取车站代码
+                }
+            }            // 获取车站代码
             getStationCode(stationName) {
                 // 检查车站代码是否已加载
                 if (this.stationCodes.size === 0) {
                     throw new Error('车站代码尚未加载完成，请等待网络加载或检查网络连接');
                 }
-                
+
                 // 首先尝试直接查找
                 if (this.stationCodes.has(stationName)) {
                     return this.stationCodes.get(stationName);
                 }
-                
+
                 // 如果没找到，尝试添加或移除"站"字
                 if (stationName.endsWith('站')) {
                     // 如果带"站"字，尝试不带"站"字的版本
@@ -1296,41 +1412,41 @@
                         return this.stationCodes.get(nameWithSuffix);
                     }
                 }
-                
+
                 console.warn(`未找到车站代码: ${stationName}，可用车站代码数量: ${this.stationCodes.size}`);
                 return null;
             }            // 查询列车余票信息            
             async queryTrains(fromStation, toStation, date) {
                 // 确保已初始化
                 await this.ensureInitialized();
-                
+
                 const fromCode = this.getStationCode(fromStation);
                 const toCode = this.getStationCode(toStation);
-                
+
                 if (!fromCode || !toCode) {
                     const errorMsg = `未找到车站代码: ${fromStation}(${fromCode}) -> ${toStation}(${toCode})，请确保车站代码已从在线获取`;
                     console.error(errorMsg);
                     throw new Error(errorMsg);
                 }
-                
+
                 try {
                     console.log(`查询列车: ${fromStation}(${fromCode}) -> ${toStation}(${toCode}) 日期: ${date}`);
-                    
+
                     const url = `${this.proxyBaseUrl}/api/query-trains`;
                     const params = new URLSearchParams({
                         from_station: fromCode,
                         to_station: toCode,
                         train_date: date
                     });
-                    
+
                     const response = await fetch(`${url}?${params}`);
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
+
                     const data = await response.json();
-                      if (data.data && data.data.result) {
+                    if (data.data && data.data.result) {
                         const trains = this.parseTrainResults(data.data.result);
                         console.log(`🚆 查询到${trains.length}趟列车 (${fromStation} → ${toStation})`);
                         return trains;
@@ -1366,10 +1482,10 @@
             async queryTrainDetails(trainNo, fromCode, toCode, date) {
                 // 确保已初始化
                 await this.ensureInitialized();
-                
+
                 try {
                     console.log(`查询列车详细信息: ${trainNo}`);
-                    
+
                     const url = `${this.proxyBaseUrl}/api/train-details`;
                     const params = new URLSearchParams({
                         train_no: trainNo,
@@ -1377,14 +1493,14 @@
                         to_station_telecode: toCode,
                         depart_date: date
                     });
-                    
+
                     const response = await fetch(`${url}?${params}`);
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
-                    const data = await response.json();                    if (data.data && data.data.data) {
+
+                    const data = await response.json(); if (data.data && data.data.data) {
                         // 检查列车是否包含"佛山西"站点（不含空格），如果包含则说明是其他线路的列车，直接过滤掉
                         const stationNames = data.data.data.map(station => station.station_name);
                         const hasFoshanXi = stationNames.some(name => {
@@ -1392,13 +1508,13 @@
                             // 只检查不含空格的"佛山西"，含空格的"佛山 西"不过滤
                             return name === '佛山西' || name === '佛山西站';
                         });
-                        
+
                         if (hasFoshanXi) {
                             console.log(`🚫 列车${trainNo}包含佛山西站点，判定为其他线路列车，完全过滤掉`);
                             console.log('📍 该列车停靠站点:', stationNames.join(' → '));
                             return null; // 返回null表示该列车应被过滤掉
                         }
-                        
+
                         console.log(`✅ 列车${trainNo}通过过滤检查，包含${data.data.data.length}个站点`);
                         return data.data.data;
                     }
@@ -1406,13 +1522,14 @@
                 } catch (error) {
                     console.error('查询列车详细信息失败:', error);
                     return [];
-                }            }// 判断列车类型
+                }
+            }// 判断列车类型
             determineTrainType(trainCode, stations) {
                 // 根据车次号判断列车类型
                 // 提取车次号中的数字部分
                 const trainNumber = trainCode.replace(/[^0-9]/g, '');
                 const trainNum = parseInt(trainNumber);
-                
+
                 if (trainNum >= 6880 && trainNum <= 6899) {
                     return '特快';
                 } else if (trainNumber.startsWith('68')) {
@@ -1427,11 +1544,11 @@
         // 根据车次号判断列车类型的通用函数
         function getTrainTypeByNumber(trainNumber) {
             if (!trainNumber) return '普通';
-            
+
             // 提取车次号中的数字部分
             const numberOnly = trainNumber.replace(/[^0-9]/g, '');
             const trainNum = parseInt(numberOnly);
-            
+
             if (trainNum >= 6880 && trainNum <= 6899) {
                 return '特快';
             } else if (numberOnly.startsWith('68')) {
@@ -1619,24 +1736,26 @@
                 month: '2-digit',
                 day: '2-digit'
             });
-            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;        }        // 根据当前时间和发车时间计算列车状态
+            document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
+        }        // 根据当前时间和发车时间计算列车状态
         function calculateTrainStatus(departureTime) {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            
+
             // 解析发车时间
             const [hours, minutes] = departureTime.split(':').map(Number);
             const departMinutes = hours * 60 + minutes;
-            
+
             // 计算时间差（分钟）
             const timeDiff = departMinutes - currentMinutes;
-            
+
             if (timeDiff <= -3) {
                 // 已发车超过3分钟，准备淡出
                 return { status: '已发车', class: 'departed', shouldFadeOut: true };
             } else if (timeDiff <= 0) {
                 // 已经发车但未超过3分钟
-                return { status: '已发车', class: 'departed', shouldFadeOut: false };            } else if (timeDiff <= 4) {
+                return { status: '已发车', class: 'departed', shouldFadeOut: false };
+            } else if (timeDiff <= 4) {
                 // 4分钟内即将发车
                 return { status: '即将发车', class: 'boarding boarding-soon', shouldFadeOut: false };
             } else if (timeDiff <= 15) {
@@ -1650,23 +1769,23 @@
         function updateSingleTrainStatus(index, train) {
             const trainElement = document.querySelector(`[data-train-index="${index}"]`);
             if (!trainElement) return false;
-            
+
             // 根据车次号动态判断列车类型
             const actualType = getTrainTypeByNumber(train.number);
             const isExpress = actualType === '快车';
             const isSuperExpress = actualType === '特快';
-            
+
             // 检查当前站是否为该列车种别停靠站
             let isCurrentStationStop = true;
             const currentExpressStops = getCurrentDirectionExpressStops();
             const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-            
+
             if (isSuperExpress && !currentSuperExpressStops.has(currentStation)) {
                 isCurrentStationStop = false;
             } else if (isExpress && !isSuperExpress && !currentExpressStops.has(currentStation)) {
                 isCurrentStationStop = false;
             }
-            
+
             // 计算新状态
             let displayStatus, statusClass, shouldFadeOut = false;
             if (!isCurrentStationStop) {
@@ -1678,7 +1797,7 @@
                 statusClass = statusInfo.class;
                 shouldFadeOut = statusInfo.shouldFadeOut;
             }
-            
+
             // 获取状态元素并更新
             const statusElement = trainElement.querySelector('.status');
             if (statusElement) {
@@ -1687,53 +1806,53 @@
                 if (currentStatus !== displayStatus) {
                     // 添加状态变化动画
                     statusElement.classList.add('status-changing');
-                    
+
                     setTimeout(() => {
                         statusElement.textContent = displayStatus;
                         statusElement.className = `status ${statusClass}`;
                         statusElement.classList.add('status-changed');
-                        
+
                         console.log(`🔄 列车${train.number}状态更新: ${currentStatus} → ${displayStatus}`);
-                        
+
                         // 移除动画类
                         setTimeout(() => {
                             statusElement.classList.remove('status-changing', 'status-changed');
                         }, 500);
                     }, 150);
-                    
+
                     return true; // 状态有变化
                 }
             }
-            
+
             // 更新列车项的整体状态类
             if (displayStatus === '即将发车' && !trainElement.classList.contains('next-departure')) {
                 trainElement.classList.add('next-departure');
             } else if (displayStatus !== '即将发车' && trainElement.classList.contains('next-departure')) {
                 trainElement.classList.remove('next-departure');
             }
-            
+
             if (shouldFadeOut && !trainElement.classList.contains('pre-fade')) {
                 trainElement.classList.add('pre-fade');
             }
-            
+
             return false; // 状态无变化
         }
-        
+
         // 智能状态刷新 - 逐个更新列车状态，不重新渲染整个列表
         function scheduleSmartStatusRefresh() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            
+
             // 找到最近需要状态更新的列车
             let nearestStatusChange = null;
             let minTimeDiff = Infinity;
             let hasStatusChanges = false;
-            
+
             trainData.forEach(train => {
                 const [hours, minutes] = train.time.split(':').map(Number);
                 const trainMinutes = hours * 60 + minutes;
                 const timeDiff = trainMinutes - currentMinutes;
-                
+
                 // 检查各个状态转换的临界点
                 const statusChangePoints = [
                     timeDiff - 15, // 开始检票
@@ -1741,7 +1860,7 @@
                     timeDiff,      // 已发车
                     timeDiff + 3   // 发车后3分钟（淡出时机）
                 ].filter(diff => diff > 0 && diff < minTimeDiff);
-                
+
                 if (statusChangePoints.length > 0) {
                     const nearestChange = Math.min(...statusChangePoints);
                     if (nearestChange < minTimeDiff) {
@@ -1750,7 +1869,7 @@
                     }
                 }
             });
-            
+
             // 根据最近的状态变化设置刷新间隔
             let refreshInterval;
             if (nearestStatusChange <= 1) {
@@ -1767,16 +1886,16 @@
                 refreshInterval = 300000; // 5分钟
                 console.log('⏰ 智能刷新：无近期状态变化，每5分钟刷新一次');
             }
-            
+
             // 清除之前的定时器
             if (window.statusRefreshTimer) {
                 clearTimeout(window.statusRefreshTimer);
             }
-            
+
             // 设置新的定时器
             window.statusRefreshTimer = setTimeout(() => {
                 console.log('🔄 智能刷新列车状态...');
-                
+
                 // 逐个更新列车状态
                 trainData.forEach((train, index) => {
                     const changed = updateSingleTrainStatus(index, train);
@@ -1784,31 +1903,31 @@
                         hasStatusChanges = true;
                     }
                 });
-                
+
                 if (hasStatusChanges) {
                     renderTrainList(); // 重新渲染列表以反映状态变化
                     console.log('✅ 有列车状态发生变化');
                 } else {
                     console.log('ℹ️ 无列车状态变化');
                 }
-                
+
                 // 管理需要淡出的列车（仍需要重新渲染来移除列车）
                 manageFadeOutTrains();
-                
+
                 scheduleSmartStatusRefresh(); // 递归安排下次刷新
             }, refreshInterval);
         }        // 管理列车的淡出和移除
         function manageFadeOutTrains() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            
+
             // 标记需要淡出的列车
             const trainsToFadeOut = [];
             trainData.forEach((train, index) => {
                 const [hours, minutes] = train.time.split(':').map(Number);
                 const trainMinutes = hours * 60 + minutes;
                 const timeDiff = trainMinutes - currentMinutes;
-                
+
                 if (timeDiff <= -3) {
                     trainsToFadeOut.push(index);
                 }
@@ -1816,7 +1935,7 @@
 
             if (trainsToFadeOut.length > 0) {
                 console.log(`🚫 淡出${trainsToFadeOut.length}趟已发车超过3分钟的列车`);
-                
+
                 // 先开始淡出动画
                 trainsToFadeOut.forEach(index => {
                     const trainElement = document.querySelector(`[data-train-index="${index}"]`);
@@ -1824,7 +1943,7 @@
                         trainElement.classList.add('fade-out');
                     }
                 });
-                
+
                 // 2秒后（淡出动画完成）开始其他列车的上移动画
                 setTimeout(() => {
                     // 为其他列车添加上移动画
@@ -1835,7 +1954,7 @@
                         }
                     });
                 }, 1000);
-                
+
                 // 2.5秒后从数据中移除已淡出的列车，并重新渲染
                 setTimeout(() => {
                     // 从后往前删除，避免索引变化
@@ -1843,7 +1962,7 @@
                         trainData.splice(trainsToFadeOut[i], 1);
                     }
                     console.log(`✅ 移除了${trainsToFadeOut.length}趟列车，当前列车数量：${trainData.length}`);
-                    
+
                     // 只有在移除列车时才重新渲染整个列表
                     renderTrainList();
                 }, 3000);
@@ -1856,22 +1975,22 @@
         function getNextDeparture() {
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            
+
             // 查找真正"即将发车"状态的列车（4分钟内发车）
             for (let train of trainData) {
                 const [hours, minutes] = train.time.split(':').map(Number);
                 const trainMinutes = hours * 60 + minutes;
                 const timeDiff = trainMinutes - currentMinutes;
-                
+
                 // 只有在4分钟内即将发车的列车才被标记为"即将发车"
                 if (timeDiff > 0 && timeDiff <= 4) {
                     return train.number;
                 }
             }
-            
+
             // 如果没有即将发车的列车，返回null（不高亮任何列车）
             return null;
-        }        function renderStationsDisplay(train, index, isPassing = false) {
+        } function renderStationsDisplay(train, index, isPassing = false) {
             // 如果是通过状态，返回简化的显示
             if (isPassing) {
                 return `
@@ -1880,31 +1999,31 @@
                     </div>
                 `;
             }
-              // 根据车次号动态判断列车类型
+            // 根据车次号动态判断列车类型
             const actualType = getTrainTypeByNumber(train.number);
             const isExpress = actualType === '快车';
             const isSuperExpress = actualType === '特快';
-            
+
             // 使用当前方向的站点列表
             const currentDirectionStations = getCurrentDirectionStations();
-            
+
             // 在查找终点站索引时，去除可能存在的空格以便正确匹配
             let destinationIndex = -1;
             if (train.destination) {
                 // 先尝试直接匹配
                 destinationIndex = currentDirectionStations.indexOf(train.destination);
-                
+
                 // 如果直接匹配失败，尝试去除空格后匹配
                 if (destinationIndex === -1) {
                     const normalizedDestination = train.destination.replace(/\s+/g, '');
-                    destinationIndex = currentDirectionStations.findIndex(station => 
+                    destinationIndex = currentDirectionStations.findIndex(station =>
                         station.replace(/\s+/g, '') === normalizedDestination
                     );
                 }
             }
-            
+
             const currentStationIndex = currentDirectionStations.indexOf(currentStation);
-            
+
             // 修改显示逻辑：从当前站开始显示到终点站
             let stationsToShow;
             if (destinationIndex === -1) {
@@ -1913,11 +2032,11 @@
             } else {
                 // 从当前站显示到终点站
                 stationsToShow = currentDirectionStations.slice(currentStationIndex, destinationIndex + 1);
-            }              const stationPoints = stationsToShow.map((station, stationIndex) => {
+            } const stationPoints = stationsToShow.map((station, stationIndex) => {
                 const globalStationIndex = currentDirectionStations.indexOf(station);
                 let dotClass = 'station-dot';
                 let nameClass = 'station-name-label';
-                  // 判断站点状态
+                // 判断站点状态
                 if (station === currentStation) {
                     dotClass += ' current';
                     nameClass += ' highlight';
@@ -1926,7 +2045,7 @@
                     // 根据列车类型判断是否停靠
                     const currentExpressStops = getCurrentDirectionExpressStops();
                     const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-                    
+
                     if (isSuperExpress && currentSuperExpressStops.has(station)) {
                         dotClass += ' stop';
                         nameClass += ' highlight';
@@ -1939,29 +2058,29 @@
                         nameClass += ' highlight';
                     }
                 }
-                
+
                 return `
                     <div class="station-point">
                         <div class="${dotClass}"></div>
                         <div class="${nameClass}">${station.replace('站', '')}</div>
                     </div>
                 `;
-            }).join('');            const trainTypeText = isSuperExpress ? '特快' : (isExpress ? '快车' : '普通');
-            
+            }).join(''); const trainTypeText = isSuperExpress ? '特快' : (isExpress ? '快车' : '普通');
+
             // 使用当前方向的停靠站计算
             const currentExpressStops = getCurrentDirectionExpressStops();
             const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-            
-            const stopsCount = isSuperExpress ? 
-                stationsToShow.filter(s => currentSuperExpressStops.has(s)).length : 
-                (isExpress ? 
-                    stationsToShow.filter(s => currentExpressStops.has(s)).length : 
+
+            const stopsCount = isSuperExpress ?
+                stationsToShow.filter(s => currentSuperExpressStops.has(s)).length :
+                (isExpress ?
+                    stationsToShow.filter(s => currentExpressStops.has(s)).length :
                     stationsToShow.length);
-            
+
             const trackId = `track-${index}`;
             const scrollContainerId = `scroll-container-${index}`;            // 计算轨道线的实际宽度：站点数量 * 站点最小宽度 - 一个站点宽度（因为是从第一个站点中心开始）
             const trackLineWidth = (stationsToShow.length - 1) * 42; // 40px最小宽度 + 2px间隙
-              return `
+            return `
                 <div class="stations-display">
                     <div class="stations-scroll-container" id="${scrollContainerId}">
                         <div class="stations-track" id="${trackId}">
@@ -1972,34 +2091,35 @@
                     </div>
                     <div class="stations-info">${trainTypeText} | ${stopsCount}站</div>
                 </div>
-            `;}        
-            function renderTrainList() {
+            `;
+        }
+        function renderTrainList() {
             const trainListElement = document.getElementById('trainList');
             console.log('🔄 全局重新渲染列车列表...');
-            
+
             trainListElement.innerHTML = trainData.map((train, index) => {
                 // 根据车次号动态判断列车类型
                 const actualType = getTrainTypeByNumber(train.number);
-                const typeClass = actualType === '特快' ? 'super-express' : 
-                                 (actualType === '快车' ? 'express' : 'regular');
-                
+                const typeClass = actualType === '特快' ? 'super-express' :
+                    (actualType === '快车' ? 'express' : 'regular');
+
                 // 检查当前站是否为该列车种别停靠站
                 const isExpress = actualType === '快车';
                 const isSuperExpress = actualType === '特快';
                 let isCurrentStationStop = true;
-                
+
                 // 使用当前方向的停靠站
                 const currentExpressStops = getCurrentDirectionExpressStops();
                 const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-                
+
                 if (isSuperExpress && !currentSuperExpressStops.has(currentStation)) {
                     isCurrentStationStop = false;
                 } else if (isExpress && !isSuperExpress && !currentExpressStops.has(currentStation)) {
                     isCurrentStationStop = false;
                 }
-                  // 根据是否停靠修改状态
+                // 根据是否停靠修改状态
                 let displayStatus, statusClass, shouldFadeOut = false;
-                
+
                 if (!isCurrentStationStop) {
                     displayStatus = '通过';
                     statusClass = 'passing';
@@ -2010,7 +2130,7 @@
                     statusClass = statusInfo.class;
                     shouldFadeOut = statusInfo.shouldFadeOut;
                 }
-                  const stationsDisplay = renderStationsDisplay(train, index, !isCurrentStationStop);
+                const stationsDisplay = renderStationsDisplay(train, index, !isCurrentStationStop);
 
                 // 确定列车项的CSS类
                 let trainItemClasses = 'train-item';
@@ -2046,7 +2166,7 @@
                     element.classList.remove('slide-up');
                 });
             }, 4200); // 2s淡出等待 + 2s上移动画 + 0.2s缓冲
-            
+
             // 管理列车淡出
             setTimeout(manageFadeOutTrains, 500);
         }// 从12306获取列车数据
@@ -2058,41 +2178,41 @@
                 const month = String(today.getMonth() + 1).padStart(2, '0');
                 const day = String(today.getDate()).padStart(2, '0');
                 const todayStr = `${year}-${month}-${day}`;
-                
+
                 // 找到当前站最近的特快车停靠站作为查询目标
                 const nearestSuperExpressStation = findNearestSuperExpressStation(currentStation);
-                
+
                 console.log(`查询从 ${currentStation} 到 ${nearestSuperExpressStation} 的列车信息`);
-                
+
                 // 尝试从12306获取数据
                 const trains = await railway12306.queryTrains(currentStation, nearestSuperExpressStation, todayStr);
-                
+
                 if (trains.length > 0) {
                     // 将12306数据转换为我们的格式
                     const convertedTrains = await Promise.all(trains.map(async (train, index) => {
                         try {
                             const details = await railway12306.queryTrainDetails(
-                                train.trainNo, 
+                                train.trainNo,
                                 railway12306.getStationCode(currentStation),
                                 railway12306.getStationCode(nearestSuperExpressStation),
                                 todayStr
                             );
-                            
+
                             // 如果queryTrainDetails返回null，说明该列车被过滤掉了（包含佛山西站）
                             if (details === null) {
                                 console.log(`🚫 列车${train.trainCode}被过滤（包含佛山西站），跳过该列车`);
                                 return null;
                             }
-                            
+
                             // 如果details为空数组，说明API调用失败
                             if (!details || details.length === 0) {
                                 console.warn(`⚠️ 列车${train.trainCode}详细信息获取失败，跳过该列车`);
                                 return null;
                             }
-                            
+
                             // 判断列车类型
                             const trainType = railway12306.determineTrainType(train.trainCode, details);
-                            
+
                             // 从列车详情中获取真正的终点站（最后一个站点）
                             let actualDestination = nearestSuperExpressStation; // 默认值
                             if (details && details.length > 0) {
@@ -2104,7 +2224,7 @@
                                     actualDestination = stationName.endsWith('站') ? stationName : stationName + '站';
                                 }
                             }
-                            
+
                             return {
                                 type: trainType,
                                 number: train.trainCode,
@@ -2126,13 +2246,13 @@
                     // 过滤掉null值并检查是否有有效数据
                     const validTrains = convertedTrains.filter(train => train !== null);
                     const filteredCount = convertedTrains.length - validTrains.length;
-                    
+
                     console.log(`📊 列车过滤统计:`);
                     console.log(`   原始查询到的列车: ${trains.length}`);
                     console.log(`   转换处理后数量: ${convertedTrains.length}`);
                     console.log(`   被过滤的列车: ${filteredCount} (包含佛山西站或获取失败)`);
                     console.log(`   最终有效列车: ${validTrains.length}`);
-                    
+
                     if (validTrains.length > 0) {
                         trainData = validTrains;
                         console.log('✅ 成功获取12306数据，有效列车数量:', trainData.length);
@@ -2145,42 +2265,42 @@
                     console.warn('⚠️ 12306 API返回空结果');
                     throw new Error('12306 API返回空结果');
                 }
-                
+
             } catch (error) {
                 console.error('12306 API调用失败:', error.message);
-                
+
                 // API失败时，生成基于当前时间的模拟数据
                 const simulatedData = generateSimulatedTrainData();
                 trainData = simulatedData;
                 console.log('使用模拟数据，列车数量:', trainData.length);
-                
+
                 // 返回失败状态和错误信息
-                return { 
-                    success: false, 
-                    data: simulatedData, 
-                    source: 'simulation', 
-                    error: error.message 
+                return {
+                    success: false,
+                    data: simulatedData,
+                    source: 'simulation',
+                    error: error.message
                 };
             }
         }// 查找最近的特快车停靠站
         function findNearestSuperExpressStation(currentStationName) {
             const currentDirectionStations = getCurrentDirectionStations();
             const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-            
+
             const currentIndex = currentDirectionStations.indexOf(currentStationName);
-            
+
             if (currentIndex === -1) {
                 // 根据方向返回默认终点
                 return currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
             }
-            
+
             // 从当前站向前找最近的特快车停靠站
             for (let i = currentIndex + 1; i < currentDirectionStations.length; i++) {
                 if (currentSuperExpressStops.has(currentDirectionStations[i])) {
                     return currentDirectionStations[i];
                 }
             }
-            
+
             // 如果向前找不到，返回对应方向的最后一个特快车站
             return currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
         }        // 生成基于当前时间的模拟列车数据
@@ -2189,12 +2309,12 @@
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
             const currentDirectionStations = getCurrentDirectionStations();
             const currentStationIndex = currentDirectionStations.indexOf(currentStation);
-            
+
             // 为不同列车类型定义可能的终点站
             const getDestinationsForTrainType = (trainType, currentIndex) => {
                 const currentExpressStops = getCurrentDirectionExpressStops();
                 const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
-                
+
                 if (trainType === '特快') {
                     // 特快列车只到主要特快停靠站
                     return Array.from(currentSuperExpressStops).filter(station => {
@@ -2215,13 +2335,13 @@
                     });
                 }
             };
-            
+
             // 生成接下来几小时的列车班次
             const simulatedTrains = [];
-            
+
             for (let i = 0; i < 12; i++) {
                 let departMinutes, timeString;
-                
+
                 // 为前三个列车设置特定的时间，以确保有不同的状态
                 if (i === 0) {
                     // 第一个列车：已发车（比当前时间早5分钟）
@@ -2236,17 +2356,17 @@
                     // 其他列车：正常间隔
                     departMinutes = currentMinutes + 15 + ((i - 3) * 20);
                 }
-                
+
                 const hours = Math.floor(departMinutes / 60) % 24;
                 const minutes = departMinutes % 60;
                 timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-                
+
                 const trainTypes = ['普通', '快车', '特快'];
                 const trainType = trainTypes[i % 3];
-                
+
                 // 获取该列车类型的可能终点站
                 const possibleDestinations = getDestinationsForTrainType(trainType, currentStationIndex);
-                  // 根据列车类型选择终点站
+                // 根据列车类型选择终点站
                 let destination;
                 if (possibleDestinations.length === 0) {
                     // 如果没有找到合适的终点站，使用默认的最后一站
@@ -2275,7 +2395,7 @@
                     // 普通: 非68开头
                     trainNumber = `C${7500 + i}`;
                 }
-                
+
                 simulatedTrains.push({
                     type: trainType,
                     number: trainNumber,
@@ -2286,43 +2406,43 @@
                     note: "1-8号车厢"
                 });
             }
-            
+
             return simulatedTrains;
         }        // 站点输入框功能
         function initStationInput() {
             const stationInput = document.getElementById('currentStationInput');
             const suggestions = document.getElementById('stationSuggestions');
-            
+
             // 用于防止竞态条件的变量
             let isSelectingStation = false;
-            
+
             // 输入框焦点和失焦事件
-            stationInput.addEventListener('focus', function() {
+            stationInput.addEventListener('focus', function () {
                 showSuggestions(stationInput.value);
             });
-            
+
             // 输入事件
-            stationInput.addEventListener('input', function() {
+            stationInput.addEventListener('input', function () {
                 const value = this.value.trim();
                 showSuggestions(value);
             });
-            
+
             // 失焦事件（延迟执行以允许点击建议项）
-            stationInput.addEventListener('blur', function() {
+            stationInput.addEventListener('blur', function () {
                 // 如果正在选择车站，则不执行隐藏操作
                 if (isSelectingStation) {
                     isSelectingStation = false;
                     return;
                 }
-                
+
                 setTimeout(() => {
                     if (!isSelectingStation) {
                         suggestions.style.display = 'none';
                     }
                 }, 300); // 增加延迟时间到300ms
             });
-              // 回车确认
-            stationInput.addEventListener('keydown', function(e) {
+            // 回车确认
+            stationInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     const value = this.value.trim();
                     const currentStations = getCurrentDirectionStations();
@@ -2333,37 +2453,37 @@
                     }
                 }
             });
-            
+
             // 添加全局点击事件监听器，点击外部时隐藏建议列表
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!stationInput.contains(e.target) && !suggestions.contains(e.target)) {
                     suggestions.style.display = 'none';
                 }
             });
-            
+
             // 将防竞态条件变量存储到全局作用域，供selectStation使用
             window.stationInputState = { isSelectingStation: () => isSelectingStation, setSelectingStation: (value) => { isSelectingStation = value; } };
-        }          function showSuggestions(query) {
+        } function showSuggestions(query) {
             const suggestions = document.getElementById('stationSuggestions');
             const currentStations = getCurrentDirectionStations();
-            
+
             if (!query) {
                 // 显示所有站点，使用mousedown事件代替onclick以避免blur冲突
-                const html = currentStations.map(station => 
+                const html = currentStations.map(station =>
                     `<div class="station-suggestion-item" onmousedown="selectStation('${station}')" onclick="event.preventDefault()">${station}</div>`
                 ).join('');
                 suggestions.innerHTML = html;
                 suggestions.style.display = 'block';
                 return;
             }
-            
+
             // 过滤匹配的站点
-            const filteredStations = currentStations.filter(station => 
+            const filteredStations = currentStations.filter(station =>
                 station.includes(query) || station.replace('站', '').includes(query)
             );
-            
+
             if (filteredStations.length > 0) {
-                const html = filteredStations.map(station => 
+                const html = filteredStations.map(station =>
                     `<div class="station-suggestion-item" onmousedown="selectStation('${station}')" onclick="event.preventDefault()">${station}</div>`
                 ).join('');
                 suggestions.innerHTML = html;
@@ -2372,21 +2492,21 @@
                 suggestions.style.display = 'none';
             }
         }
-          function selectStation(station) {
+        function selectStation(station) {
             // 设置选择状态，防止blur事件干扰
             if (window.stationInputState) {
                 window.stationInputState.setSelectingStation(true);
             }
-            
+
             // 立即隐藏建议列表
             document.getElementById('stationSuggestions').style.display = 'none';
-            
+
             // 更新车站信息
             updateCurrentStation(station);
-            
+
             // 让输入框失去焦点
             document.getElementById('currentStationInput').blur();
-            
+
             // 重置选择状态
             setTimeout(() => {
                 if (window.stationInputState) {
@@ -2394,7 +2514,7 @@
                 }
             }, 100);
         }
-          function updateCurrentStation(station) {
+        function updateCurrentStation(station) {
             currentStation = station;
             document.getElementById('currentStationInput').value = station;
             // 重新渲染列车列表以更新站点状态
@@ -2406,21 +2526,21 @@
                 console.log('当前数据源为模拟数据，刷新功能不可用');
                 return;
             }
-            
+
             const refreshBtn = document.getElementById('refreshDataBtn');
             const dataSource = document.getElementById('dataSource');
-            
+
             // 更新按钮状态
             refreshBtn.disabled = true;
             refreshBtn.textContent = '获取中...';
             dataSource.textContent = '数据源: 获取中...';
-            
+
             try {
                 const result = await fetchTrainData();
-                  if (result.success) {
+                if (result.success) {
                     // API调用成功
                     renderTrainList();
-                    
+
                     // 重新启动智能状态刷新
                     if (window.statusRefreshTimer) {
                         clearTimeout(window.statusRefreshTimer);
@@ -2429,7 +2549,7 @@
                         scheduleSmartStatusRefresh();
                         console.log('🔄 智能状态刷新已重新启动（12306数据）');
                     }, 500);
-                    
+
                     dataSource.textContent = '数据源: 12306 API';
                     console.log('✅ 12306数据刷新成功');
                 } else {
@@ -2438,19 +2558,19 @@
                 }
             } catch (error) {
                 console.error('刷新12306数据失败:', error);
-                
+
                 // 显示错误提示
                 alert('获取12306数据失败，已切换回模拟数据\n错误信息: ' + error.message);
-                
+
                 // 切换回模拟数据
                 currentDataSource = 'simulation';
                 trainData = [...simulationTrainData];
-                
+
                 // 更新UI状态
                 document.getElementById('simulationDataBtn').classList.add('active');
                 document.getElementById('api12306DataBtn').classList.remove('active');
                 dataSource.textContent = '数据源: 模拟数据 (API失败)';
-                
+
                 // 重新渲染
                 renderTrainList();
             } finally {
@@ -2462,28 +2582,28 @@
         async function init() {
             updateCurrentTime();
             initStationInput();
-            
+
             // 默认使用模拟数据初始化
             console.log('初始化完成，使用模拟数据');
             currentDataSource = 'simulation';
             trainData = [...simulationTrainData];
-            
+
             // 确保UI状态正确
             document.getElementById('simulationDataBtn').classList.add('active');
             document.getElementById('api12306DataBtn').classList.remove('active');
             document.getElementById('refreshDataBtn').disabled = true;
             document.getElementById('dataSource').textContent = '数据源: 模拟数据';
-              renderTrainList();
-            
+            renderTrainList();
+
             // 启动智能状态刷新
             setTimeout(() => {
                 scheduleSmartStatusRefresh();
                 console.log('🚀 智能状态刷新已启动');
             }, 1000);
-            
+
             // 每秒更新时间显示
             setInterval(updateCurrentTime, 1000);
-            
+
         }
 
         // 页面卸载时清理资源
@@ -2492,39 +2612,40 @@
         });
 
         document.addEventListener('DOMContentLoaded', init);        // 交互效果
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.closest('.train-item')) {
                 const trainItem = e.target.closest('.train-item');
                 trainItem.style.transform = 'scale(1.01)';
                 setTimeout(() => {
                     trainItem.style.transform = '';
                 }, 200);
-            }        });        // 设置数据源
+            }
+        });        // 设置数据源
         async function setDataSource(source) {
             console.log('切换数据源到:', source);
-            
+
             // 更新当前数据源
             currentDataSource = source;
-            
+
             // 更新按钮状态
             const simulationBtn = document.getElementById('simulationDataBtn');
             const api12306Btn = document.getElementById('api12306DataBtn');
             const refreshBtn = document.getElementById('refreshDataBtn');
             const dataSourceDisplay = document.getElementById('dataSource');
-            
+
             if (source === 'simulation') {
                 // 使用模拟数据
                 simulationBtn.classList.add('active');
                 api12306Btn.classList.remove('active');
                 refreshBtn.disabled = true;
                 refreshBtn.textContent = '刷新12306数据';
-                  // 切换到模拟数据
+                // 切换到模拟数据
                 trainData = [...simulationTrainData];
                 dataSourceDisplay.textContent = '数据源: 模拟数据';
-                
+
                 // 重新渲染列车列表
                 renderTrainList();
-                
+
                 // 重新启动智能状态刷新
                 if (window.statusRefreshTimer) {
                     clearTimeout(window.statusRefreshTimer);
@@ -2533,36 +2654,36 @@
                     scheduleSmartStatusRefresh();
                     console.log('🔄 智能状态刷新已重新启动（模拟数据）');
                 }, 500);
-                
+
             } else if (source === '12306') {
                 // 使用12306数据
                 simulationBtn.classList.remove('active');
                 api12306Btn.classList.add('active');
                 refreshBtn.disabled = false;
-                
+
                 // 显示初始化状态
                 dataSourceDisplay.textContent = '数据源: 12306 初始化中...';
                 refreshBtn.disabled = true;
                 refreshBtn.textContent = '初始化中...';
-                
+
                 try {
                     // 确保12306 API已初始化
                     console.log('🔄 确保12306 API已初始化...');
                     await railway12306.ensureInitialized();
                     console.log('✅ 12306 API初始化完成，开始获取数据');
-                    
+
                     // 恢复按钮状态
                     refreshBtn.disabled = false;
                     refreshBtn.textContent = '刷新12306数据';
-                    
+
                     // 尝试获取12306数据
                     await refreshTrainData();
                 } catch (error) {
                     console.error('❌ 12306 API初始化失败:', error);
-                    
+
                     // 显示错误提示
                     alert('12306 API初始化失败，请检查网络连接后重试\n错误信息: ' + error.message);
-                    
+
                     // 回退到模拟数据
                     simulationBtn.classList.add('active');
                     api12306Btn.classList.remove('active');
@@ -2582,4 +2703,5 @@
         window.setDataSource = setDataSource;
     </script>
 </body>
+
 </html>
