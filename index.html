@@ -383,11 +383,17 @@
             border-radius: 15px;
             font-size: 12px;
             text-align: center;
-        }        .on-time { background: #27ae60; color: white; }
-        .delay { background: #e74c3c; color: white; }
-        .boarding { background: #f39c12; color: white; }
+        }        .on-time { background: #27ae60; color: white; }        .delay { background: #e74c3c; color: white; }        .boarding { 
+            background: #ebbc00; 
+            color: white; 
+            font-weight: bold;
+            animation: slowBreathing 5s ease-in-out infinite;
+        }
+        .boarding.boarding-soon { 
+            animation: blink 1.5s infinite;
+        }
         .departed { background: #7f8c8d; color: white; }
-        .passing { background: #95a5a6; color: white; }        /* 已发车超过3分钟的列车动画 */
+        .passing { background: #95a5a6; color: white; }/* 已发车超过3分钟的列车动画 */
         .train-item.fade-out {
             animation: fadeOutSmooth 1.5s ease forwards;
             pointer-events: none !important;
@@ -552,12 +558,20 @@
             font-size: 11px;
             font-weight: bold;
             animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
+        }        @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0.3; }
-        }        @media (max-width: 768px) {
+        }        /* 正在检票的缓慢呼吸灯效果 - 黄色和橙色之间变化 */
+        @keyframes slowBreathing {
+            0%,30%,70%, 100% { 
+                background: #ebbc00;
+                box-shadow: 0 0 5px rgba(241, 196, 15, 0.6);
+            }
+            50% { 
+                background: #e67e22;
+                box-shadow: 0 0 15px rgba(230, 126, 34, 1);
+            }
+        }@media (max-width: 768px) {
             .board-header, .train-row {
                 grid-template-columns: 50px 80px 70px 100px 50px 70px auto;
                 font-size: 11px;
@@ -1588,10 +1602,9 @@
                 return { status: '已发车', class: 'departed', shouldFadeOut: true };
             } else if (timeDiff <= 0) {
                 // 已经发车但未超过3分钟
-                return { status: '已发车', class: 'departed', shouldFadeOut: false };
-            } else if (timeDiff <= 4) {
+                return { status: '已发车', class: 'departed', shouldFadeOut: false };            } else if (timeDiff <= 4) {
                 // 4分钟内即将发车
-                return { status: '即将发车', class: 'boarding', shouldFadeOut: false };
+                return { status: '即将发车', class: 'boarding boarding-soon', shouldFadeOut: false };
             } else if (timeDiff <= 15) {
                 // 15分钟内开始检票
                 return { status: '正在检票', class: 'boarding', shouldFadeOut: false };
@@ -1877,11 +1890,9 @@
                             <div class="train-type ${typeClass}">${actualType}</div>
                             <div style="font-weight: bold; color: #fff;">${train.number}</div>
                             <div class="time">${train.time}</div>
-                            <div class="destination">${train.destination}</div>
-                            <div class="platform">${train.platform}</div>
+                            <div class="destination">${train.destination}</div>                            <div class="platform">${train.platform}</div>
                             <div class="status ${statusClass}">${displayStatus}</div>
                             ${stationsDisplay}
-                            ${displayStatus === '即将发车' ? '<div class="next-departure-indicator">即将发车</div>' : ''}
                         </div>
                     </div>
                 `;
