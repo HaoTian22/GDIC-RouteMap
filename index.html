@@ -110,9 +110,9 @@
 
         .board-header {
             display: grid;
-            grid-template-columns: 80px 120px 110px 170px 100px 100px auto;
+            grid-template-columns: 60px 110px 110px 168px 100px 100px auto;
             gap: 10px;
-            padding: 15px 10px;
+            padding: 15px 40px;
             background: #0f3460;
             border-radius: 10px;
             margin-bottom: 10px;
@@ -519,13 +519,29 @@
             pointer-events: none !important;
         }
 
+        /* 针对不停站列车淡出后的上移动画 */
+        .train-item.slide-up-small {
+            animation: slideUpSmoothSmall 1.5s ease forwards;
+            pointer-events: none !important;
+        }
+
         @keyframes slideUpSmooth {
             0% {
                 transform: translateY(0px);
             }
 
             100% {
-                transform: translateY(-110%);
+                transform: translateY(-155px);
+            }
+        }
+
+        @keyframes slideUpSmoothSmall {
+            0% {
+                transform: translateY(0px);
+            }
+
+            100% {
+                transform: translateY(-76px);
             }
         }
 
@@ -902,8 +918,8 @@
 
     <div class="departure-board">
         <div class="board-header">
+            <div>种别</div>
             <div>车次</div>
-            <div>列车号</div>
             <div>发车时间</div>
             <div>终点站</div>
             <div>站台</div>
@@ -940,8 +956,8 @@
         // 模拟数据
         const simulationTrainData = [
             {
-                type: "普通",
-                number: "C7500",
+                type: "快车",
+                number: "C6805",
                 time: (() => {
                     // 生成另一个已发车超过3分钟的时间（比当前时间早2分钟）
                     const now = new Date();
@@ -1927,6 +1943,28 @@
             if (trainsToFadeOut.length > 0) {
                 console.log(`🚫 淡出${trainsToFadeOut.length}趟已发车超过3分钟的列车`);
 
+                // 检查被淡出的列车中是否有不停站列车
+                let hasNotStoppingTrain = false;
+                trainsToFadeOut.forEach(index => {
+                    const train = trainData[index];
+                    const actualType = getTrainTypeByNumber(train.number);
+                    const isExpress = actualType === '快车';
+                    const isSuperExpress = actualType === '特快';
+                    
+                    // 使用当前方向的停靠站
+                    const currentExpressStops = getCurrentDirectionExpressStops();
+                    const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+
+                    let isCurrentStationStop = true;
+                    if (isSuperExpress && !currentSuperExpressStops.has(currentStation)) {
+                        isCurrentStationStop = false;
+                        hasNotStoppingTrain = true;
+                    } else if (isExpress && !isSuperExpress && !currentExpressStops.has(currentStation)) {
+                        isCurrentStationStop = false;
+                        hasNotStoppingTrain = true;
+                    }
+                });
+
                 // 先开始淡出动画
                 trainsToFadeOut.forEach(index => {
                     const trainElement = document.querySelector(`[data-train-index="${index}"]`);
@@ -1940,8 +1978,15 @@
                     // 为其他列车添加上移动画
                     const allTrainElements = document.querySelectorAll('.train-item:not(.fade-out)');
                     allTrainElements.forEach(element => {
-                        if (!element.classList.contains('slide-up')) {
-                            element.classList.add('slide-up');
+                        if (!element.classList.contains('slide-up') && !element.classList.contains('slide-up-small')) {
+                            // 根据是否有不停站列车被淡出来决定使用哪种上移动画
+                            if (hasNotStoppingTrain) {
+                                element.classList.add('slide-up-small');
+                                console.log(`🔼 列车使用小幅上移动画（70px），因为有不停站列车被淡出`);
+                            } else {
+                                element.classList.add('slide-up');
+                                console.log(`🔼 列车使用常规上移动画（155px）`);
+                            }
                         }
                     });
                 }, 1000);
@@ -1961,7 +2006,7 @@
                 // 如果没有需要淡出的列车，不进行任何操作
                 console.log('ℹ️ 无需要淡出的列车');
             }
-        }        function getNextDeparture() {
+        }function getNextDeparture() {
             // 查找真正"即将发车"状态的列车（4分钟内发车）
             for (let train of trainData) {
                 // 使用新的跨天时间差计算函数
@@ -2147,13 +2192,11 @@
                     </div>
                 `;
             }).join('');            // 初始化同步滚动功能
-            setTimeout(initializeScrolling, 100);
-
-            // 清理之前的动画类
+            setTimeout(initializeScrolling, 100);            // 清理之前的动画类
             setTimeout(() => {
-                const slideUpElements = document.querySelectorAll('.train-item.slide-up');
+                const slideUpElements = document.querySelectorAll('.train-item.slide-up, .train-item.slide-up-small');
                 slideUpElements.forEach(element => {
-                    element.classList.remove('slide-up');
+                    element.classList.remove('slide-up', 'slide-up-small');
                 });
             }, 4200); // 2s淡出等待 + 2s上移动画 + 0.2s缓冲
 
