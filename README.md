@@ -82,12 +82,13 @@ npm --version
 ```
 GDIC-RouteMap/
 ├── index.html              # 前端页面
-├── start-proxy.bat         # 启动脚本
+├── start.bat               # 启动脚本
 ├── README.md              # 本文件
 ├── test.js           # 测试文件
+├── server.js              # 后端服务器
 ├── package.json       # 依赖配置
-└── api/
-      └── server.js         # 主服务器代理文件
+└── api/             # 给Vercel使用的API目录
+    └── server.js          # 同样的后端服务器
 ```
 
 ## 功能说明

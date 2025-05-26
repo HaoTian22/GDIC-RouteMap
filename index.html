@@ -60,9 +60,7 @@
             border-color: #ff8c00;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
             background: white;
-        }
-
-        .station-suggestions {
+        }        .station-suggestions {
             position: absolute;
             top: 100%;
             left: 50%;
@@ -75,6 +73,13 @@
             z-index: 1000;
             min-width: 200px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        /* 默认隐藏手机端专用元素 */
+        .train-main-info,
+        .train-destination-info,
+        .mobile-stations-container {
             display: none;
         }
 
@@ -711,55 +716,271 @@
                 background: #e67e22;
                 box-shadow: 0 0 15px rgba(230, 126, 34, 1);
             }
-        }
+        }        @media (max-width: 768px) {
+            /* 调整外边距和内边距 */
+            body {
+                padding: 10px;
+            }
 
-        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
 
-            .board-header,
+            .current-time {
+                font-size: 1.5em;
+            }
+
+            .station-name {
+                font-size: 1.2em;
+            }
+
+            .departure-board {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            /* 隐藏原有的表格标题头 */
+            .board-header {
+                display: none;
+            }
+
+            /* 隐藏桌面端的布局元素 */
+            .train-row > .train-type:nth-child(1),
+            .train-row > div:nth-child(2):not(.train-main-info),
+            .train-row > .time:not(.mobile-time),
+            .train-row > .destination:not(.mobile-destination), 
+            .train-row > .platform:not(.mobile-platform),
+            .train-row > .status:not(.mobile-status) {
+                display: none;
+            }
+
+            /* 显示手机端专用元素 */
+            .train-main-info,
+            .train-destination-info,
+            .mobile-stations-container {
+                display: flex;
+            }
+
+            /* 重新设计列车项目布局 */
+            .train-item {
+                margin-bottom: 12px;
+                border-radius: 8px;
+                background: rgba(15, 52, 96, 0.4);
+            }
+
+            /* 手机端列车行布局 */
             .train-row {
-                grid-template-columns: 50px 80px 70px 100px 50px 70px auto;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                padding: 12px;
+                grid-template-columns: none;
+            }
+
+            /* 第一行：车种别、车次、发车时间、站台、状态 */
+            .train-main-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 2px;
+            }
+
+            .train-left-info {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: 1;
+            }
+
+            .train-right-info {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            /* 手机端车种别样式 */
+            .train-type {
+                padding: 3px 6px;
+                border-radius: 10px;
+                font-size: 10px;
+                font-weight: bold;
+                min-width: 30px;
+                text-align: center;
+            }
+
+            /* 手机端车次和时间 */
+            .mobile-train-number {
+                font-weight: bold;
+                color: #fff;
+                font-size: 14px;
+            }
+
+            .mobile-time {
+                font-size: 16px;
+                font-weight: bold;
+                color: #ffd700;
+            }
+
+            /* 手机端站台和状态 */
+            .mobile-platform {
+                background: #34495e;
+                color: white;
+                padding: 3px 6px;
+                border-radius: 3px;
+                text-align: center;
+                font-weight: bold;
                 font-size: 11px;
-            }
-
-            .stations-display {
-                min-width: 150px;
-                max-width: 250px;
-            }
-
-            .station-point {
                 min-width: 25px;
             }
 
-            .station-name-label {
-                font-size: 7px;
-                width: 25px;
-                height: 20px;
+            .mobile-status {
+                padding: 3px 8px;
+                border-radius: 10px;
+                font-size: 10px;
+                text-align: center;
+                white-space: nowrap;
             }
 
+            /* 第二行：终点站 */
+            .train-destination-info {
+                margin-bottom: 8px;
+            }
+
+            .mobile-destination {
+                font-weight: bold;
+                color: #fff;
+                font-size: 13px;
+            }
+
+            .mobile-destination::before {
+                content: "→ ";
+                color: #ffd700;
+            }
+
+            /* 第三行：经停站点（圆角矩形样式） */
+            .mobile-stations-container {
+                background-color: #0000004d;
+                border-radius: 10px;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .mobile-stations-label {
+                font-size: 11px;
+                color: #95a5a6;
+                margin-bottom: 3px;
+            }
+
+            .mobile-stations-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                line-height: 1.2;
+            }
+
+            .mobile-station-tag {
+                background: rgba(52, 73, 94, 0.8);
+                color: #bdc3c763;
+                padding: 2px 6px;
+                border-radius: 8px;
+                font-size: 10px;
+                border: 1px solid rgba(52, 73, 94, 0.3);
+                transition: all 0.2s ease;
+            }
+
+            .mobile-station-tag.current {
+                background: rgba(231, 76, 60, 0.8);
+                color: #fff;
+                border-color: #e74c3c;
+                box-shadow: 0 0 5px rgba(231, 76, 60, 0.4);
+            }
+
+            .mobile-station-tag.stop {
+                background: rgba(255, 215, 0, 0.8);
+                color: #1a1a2e;
+                border-color: #ffd700;
+                font-weight: bold;
+            }
+
+            .mobile-station-tag.passed {
+                background: rgba(85, 85, 85, 0.6);
+                color: #777;
+                border-color: rgba(85, 85, 85, 0.3);
+            }
+
+            /* 不停靠列车的手机端样式 */
+            .train-item.not-stopping .train-row {
+                padding: 10px 12px;
+            }
+
+            .mobile-not-stopping {
+                background: rgba(149, 165, 166, 0.1);
+                border: 1px dashed rgba(149, 165, 166, 0.3);
+                border-radius: 5px;
+                padding: 8px;
+                text-align: center;
+                color: #95a5a6;
+                font-size: 12px;
+                margin-top: 5px;
+            }
+
+            /* 隐藏原有的站点显示 */
+            .stations-display {
+                display: none;
+            }
+
+            /* 路线图部分的手机端调整 */
             .stations-row {
                 flex-wrap: wrap;
-                gap: 10px;
+                gap: 8px;
+                padding: 0 10px;
             }
 
             .station {
-                min-width: 60px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stations-display {
-                min-width: 120px;
-                max-width: 180px;
+                min-width: 50px;
+                margin-bottom: 10px;
             }
 
-            .station-point {
-                min-width: 20px;
+            .station-name-map {
+                font-size: 10px;
             }
 
-            .station-name-label {
-                font-size: 6px;
-                width: 20px;
-                height: 18px;
+            .station-circle {
+                width: 12px;
+                height: 12px;
+            }
+
+            /* 方向选择器手机端调整 */
+            .direction-selector {
+                margin: 10px 0;
+            }
+
+            .direction-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            /* 数据源选择器手机端调整 */
+            .data-source-selector {
+                margin-bottom: 8px;
+            }
+
+            .data-source-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .refresh-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .data-source {
+                font-size: 10px;
+                margin-left: 5px;
             }
         }
 
@@ -2130,14 +2351,103 @@
                     <div class="stations-info">${trainTypeText} | ${stopsCount}站</div>
                 </div>
             `;
+        }        // 渲染手机端站点标签列表
+        function renderMobileStationsDisplay(train, isPassing = false) {
+            // 如果是通过状态，返回简化的显示
+            if (isPassing) {
+                return `
+                    <div class="mobile-stations-container">
+                        <div class="mobile-not-stopping">列车不停靠本站</div>
+                    </div>
+                `;
+            }
+
+            // 根据车次号动态判断列车类型
+            const actualType = getTrainTypeByNumber(train.number);
+            const isExpress = actualType === '快车';
+            const isSuperExpress = actualType === '特快';
+
+            // 使用当前方向的站点列表
+            const currentDirectionStations = getCurrentDirectionStations();
+            
+            // 在查找终点站索引时，去除可能存在的空格以便正确匹配
+            let destinationIndex = -1;
+            if (train.destination) {
+                // 先尝试直接匹配
+                destinationIndex = currentDirectionStations.indexOf(train.destination);
+
+                // 如果直接匹配失败，尝试去除空格后匹配
+                if (destinationIndex === -1) {
+                    const normalizedDestination = train.destination.replace(/\s+/g, '');
+                    destinationIndex = currentDirectionStations.findIndex(station =>
+                        station.replace(/\s+/g, '') === normalizedDestination
+                    );
+                }
+            }
+
+            const currentStationIndex = currentDirectionStations.indexOf(currentStation);
+
+            // 修改显示逻辑：从当前站开始显示到终点站
+            let stationsToShow;
+            if (destinationIndex === -1) {
+                // 如果找不到终点站，从当前站显示所有后续站点
+                stationsToShow = currentDirectionStations.slice(currentStationIndex);
+            } else {
+                // 从当前站显示到终点站
+                stationsToShow = currentDirectionStations.slice(currentStationIndex, destinationIndex + 1);
+            }
+
+            // 生成站点标签
+            const stationTags = stationsToShow.map((station) => {
+                let tagClass = 'mobile-station-tag';
+                
+                // 判断站点状态
+                if (station === currentStation) {
+                    tagClass += ' current';
+                } else {
+                    // 根据列车类型判断是否停靠
+                    const currentExpressStops = getCurrentDirectionExpressStops();
+                    const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+
+                    if (isSuperExpress && currentSuperExpressStops.has(station)) {
+                        tagClass += ' stop';
+                    } else if (isExpress && !isSuperExpress && currentExpressStops.has(station)) {
+                        tagClass += ' stop';
+                    } else if (!isExpress && !isSuperExpress) {
+                        // 普通列车停靠所有站点
+                        tagClass += ' stop';
+                    }
+                }
+
+                return `<span class="${tagClass}">${station.replace('站', '')}</span>`;
+            }).join('');
+
+            const trainTypeText = isSuperExpress ? '特快' : (isExpress ? '快车' : '普通');
+            
+            // 使用当前方向的停靠站计算停站数
+            const currentExpressStops = getCurrentDirectionExpressStops();
+            const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
+
+            const stopsCount = isSuperExpress ?
+                stationsToShow.filter(s => currentSuperExpressStops.has(s)).length :
+                (isExpress ?
+                    stationsToShow.filter(s => currentExpressStops.has(s)).length :
+                    stationsToShow.length);
+
+            return `
+                <div class="mobile-stations-container">
+                    <div class="mobile-stations-label">${trainTypeText} | 停靠${stopsCount}站</div>
+                    <div class="mobile-stations-list">
+                        ${stationTags}
+                    </div>
+                </div>
+            `;
         }
 
         // 初始化列车Table
         function renderTrainList() {
             const trainListElement = document.getElementById('trainList');
-            console.log('🔄 全局初始化列车列表...');
-
-            trainListElement.innerHTML = trainData.map((train, index) => {
+            console.log('🔄 全局初始化列车列表...');            trainListElement.innerHTML = trainData.map((train, index) => {
                 // 根据车次号动态判断列车类型
                 const actualType = getTrainTypeByNumber(train.number);
                 const typeClass = actualType === '特快' ? 'super-express' :
@@ -2171,6 +2481,7 @@
                     shouldFadeOut = statusInfo.shouldFadeOut;
                 }
                 const stationsDisplay = renderStationsDisplay(train, index, !isCurrentStationStop);
+                const mobileStationsDisplay = renderMobileStationsDisplay(train, !isCurrentStationStop);
 
                 // 确定列车项的CSS类
                 let trainItemClasses = 'train-item';
@@ -2187,16 +2498,35 @@
                 return `
                     <div class="${trainItemClasses}" data-train-index="${index}">
                         <div class="train-row">
+                            <!-- 桌面端布局 -->
                             <div class="train-type ${typeClass}">${actualType}</div>
                             <div style="font-weight: bold; color: #fff;">${train.number}</div>
                             <div class="time">${train.time}</div>
-                            <div class="destination">${train.destination}</div>                            <div class="platform">${train.platform}</div>
+                            <div class="destination">${train.destination}</div>
+                            <div class="platform">${train.platform}</div>
                             <div class="status ${statusClass}">${displayStatus}</div>
                             ${stationsDisplay}
+                            
+                            <!-- 手机端布局 -->
+                            <div class="train-main-info">
+                                <div class="train-left-info">
+                                    <div class="train-type ${typeClass}">${actualType}</div>
+                                    <div class="mobile-train-number">${train.number}</div>
+                                    <div class="mobile-time">${train.time}</div>
+                                </div>
+                                <div class="train-right-info">
+                                    <div class="mobile-platform">${train.platform}</div>
+                                    <div class="mobile-status ${statusClass}">${displayStatus}</div>
+                                </div>
+                            </div>
+                            <div class="train-destination-info">
+                                <div class="mobile-destination">${train.destination}</div>
+                            </div>
+                            ${mobileStationsDisplay}
                         </div>
                     </div>
                 `;
-            }).join('');            // 初始化同步滚动功能
+            }).join('');// 初始化同步滚动功能
             setTimeout(initializeScrolling, 100);            // 清理之前的动画类
             setTimeout(() => {
                 const slideUpElements = document.querySelectorAll('.train-item.slide-up, .train-item.slide-up-small');
