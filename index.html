@@ -786,7 +786,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                gap: 2px;
+                gap: 8px;
             }
 
             .train-left-info {
@@ -869,6 +869,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
+                width: 100%;
             }
 
             .mobile-stations-label {
@@ -925,7 +926,7 @@
                 border-radius: 5px;
                 padding: 8px;
                 text-align: center;
-                color: #95a5a6;
+                color: #95a5a5;
                 font-size: 12px;
                 margin-top: 5px;
             }
@@ -1100,6 +1101,41 @@
         .data-source-btn:first-child {
             border-right: 1px solid rgba(255, 215, 0, 0.3);
         }
+
+        /* 设置面板样式 */
+        #settingsPanel {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid #ffd700;
+        }
+
+        #settingsPanel div {
+            margin-bottom: 10px;
+        }
+
+        #settingsPanel div:last-child {
+            margin-bottom: 0;
+        }
+
+        #settingsPanel button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #settingsPanel button:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        #settingsPanel input[type="file"] {
+            display: none;
+        }
     </style>
 </head>
 
@@ -1136,7 +1172,38 @@
             <button id="refreshDataBtn" onclick="refreshTrainData()" class="refresh-btn" disabled>
                 刷新12306数据
             </button>
+            <button id="settingsBtn" onclick="toggleSettingsPanel()" class="refresh-btn" style="margin-left: 5px;">
+                设置
+            </button>
             <span id="dataSource" class="data-source">数据源: 模拟数据</span>
+        </div>
+
+        <!-- 设置面板 -->
+        <div id="settingsPanel" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid #ffd700;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700;">本地存储设置</div>
+            
+            <div style="margin-bottom: 10px;">
+                <div style="font-size: 12px; margin-bottom: 5px;">最近使用的站点 (最多10个):</div>
+                <div id="recentStationsList" style="font-size: 11px; color: #bdc3c7; min-height: 20px;">加载中...</div>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <div style="font-size: 12px; margin-bottom: 5px;">当前设置:</div>
+                <div id="currentSettings" style="font-size: 11px; color: #bdc3c7; min-height: 20px;">加载中...</div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="exportSettings()" style="padding: 5px 10px; background: #3498db; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                    导出设置
+                </button>
+                <button onclick="clearAllSettings()" style="padding: 5px 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                    清除设置
+                </button>
+                <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importSettings(event)">
+                <button onclick="document.getElementById('importInput').click()" style="padding: 5px 10px; background: #27ae60; color: white; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                    导入设置
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1307,10 +1374,8 @@
             },
         ];
 
-        // ---固定数据处理---
-
-        // 方向管理
-        let currentDirection = 'huizhou'; // 默认惠州方向（原始数据方向）
+        // ---固定数据处理---        // 方向管理
+        // currentDirection 变量在用户数据部分已声明
 
         // 获取当前方向的站点列表
         function getCurrentDirectionStations() {
@@ -1347,16 +1412,18 @@
                 return reversedSuperExpressStops;
             }
             return superExpressStops; // 惠州方向：保持原始Set
-        }
-
-        // 设置方向
-        function setDirection(direction) {
+        }        // 设置方向
+        function setDirection(direction, saveToStorage = true) {
             currentDirection = direction;
 
             // 更新按钮状态
             document.getElementById('huizhouBtn').classList.toggle('active', direction === 'huizhou');
             document.getElementById('zhaoqingBtn').classList.toggle('active', direction === 'zhaoqing');
 
+            // 保存到本地存储
+            if (saveToStorage && storageManager.isAvailable()) {
+                storageManager.saveCurrentDirection(direction);
+            }
 
             // 重新渲染列车列表
             renderTrainList();
@@ -1651,12 +1718,157 @@
             }
         }
 
-        // ---用户数据---
-        const scrollManager = new ScrollManager(); // 当前站点变量
-        let currentStation = "肇庆站";
+        // ---本地存储管理器---
+        class LocalStorageManager {
+            constructor() {
+                this.storageKey = 'gdic-route-map-settings';
+                this.defaultSettings = {
+                    currentStation: '肇庆站',
+                    currentDirection: 'huizhou',
+                    dataSource: 'simulation',
+                    recentStations: [],
+                    lastUpdateTime: null
+                };
+            }
 
-        // 当前数据源
+            // 获取存储的设置
+            getSettings() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (stored) {
+                        const settings = JSON.parse(stored);
+                        // 合并默认设置，确保所有必要的字段都存在
+                        return { ...this.defaultSettings, ...settings };
+                    }
+                } catch (error) {
+                    console.warn('读取本地存储失败:', error);
+                }
+                return { ...this.defaultSettings };
+            }
+
+            // 保存设置
+            saveSettings(settings) {
+                try {
+                    const currentSettings = this.getSettings();
+                    const updatedSettings = { 
+                        ...currentSettings, 
+                        ...settings,
+                        lastUpdateTime: new Date().toISOString()
+                    };
+                    localStorage.setItem(this.storageKey, JSON.stringify(updatedSettings));
+                    console.log('设置已保存到本地存储:', updatedSettings);
+                    return true;
+                } catch (error) {
+                    console.error('保存本地存储失败:', error);
+                    return false;
+                }
+            }
+
+            // 保存当前站点
+            saveCurrentStation(station) {
+                const settings = this.getSettings();
+                // 更新最近使用的站点列表
+                const recentStations = settings.recentStations || [];
+                // 移除重复项
+                const filteredRecent = recentStations.filter(s => s !== station);
+                // 添加到开头，限制最多保存10个
+                const updatedRecent = [station, ...filteredRecent].slice(0, 10);
+                
+                return this.saveSettings({
+                    currentStation: station,
+                    recentStations: updatedRecent
+                });
+            }
+
+            // 保存当前方向
+            saveCurrentDirection(direction) {
+                return this.saveSettings({
+                    currentDirection: direction
+                });
+            }
+
+            // 保存数据源
+            saveDataSource(dataSource) {
+                return this.saveSettings({
+                    dataSource: dataSource
+                });
+            }
+
+            // 获取最近使用的站点
+            getRecentStations() {
+                const settings = this.getSettings();
+                return settings.recentStations || [];
+            }
+
+            // 清除所有设置
+            clearSettings() {
+                try {
+                    localStorage.removeItem(this.storageKey);
+                    console.log('本地存储已清除');
+                    return true;
+                } catch (error) {
+                    console.error('清除本地存储失败:', error);
+                    return false;
+                }
+            }
+
+            // 检查本地存储是否可用
+            isAvailable() {
+                try {
+                    const test = '__test__';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
+                    return true;
+                } catch (error) {
+                    console.warn('本地存储不可用:', error);
+                    return false;
+                }
+            }
+
+            // 导出设置（用于备份）
+            exportSettings() {
+                const settings = this.getSettings();
+                return JSON.stringify(settings, null, 2);
+            }
+
+            // 导入设置（用于恢复）
+            importSettings(settingsJson) {
+                try {
+                    const settings = JSON.parse(settingsJson);
+                    return this.saveSettings(settings);
+                } catch (error) {
+                    console.error('导入设置失败:', error);
+                    return false;
+                }
+            }
+        }
+
+        // 创建本地存储管理器实例
+        const storageManager = new LocalStorageManager();        const scrollManager = new ScrollManager(); 
+        
+        // 从本地存储初始化用户数据
+        let currentStation = "肇庆站";
+        let currentDirection = 'huizhou';
         let currentDataSource = 'simulation'; // 'simulation' 或 '12306'
+
+        // 初始化用户设置
+        function initializeUserSettings() {
+            if (storageManager.isAvailable()) {
+                const settings = storageManager.getSettings();
+                currentStation = settings.currentStation;
+                currentDirection = settings.currentDirection;
+                currentDataSource = settings.dataSource;
+                
+                // 更新UI显示
+                document.getElementById('currentStationInput').value = currentStation;
+                setDirection(currentDirection, false); // false 表示不保存到存储，避免重复保存
+                setDataSource(currentDataSource, false);
+                
+                console.log('从本地存储加载设置:', settings);
+            } else {
+                console.warn('本地存储不可用，使用默认设置');
+            }
+        }
 
         function initializeScrolling() {
             // 清除之前的所有滚动状态
@@ -2789,18 +3001,35 @@
 
             // 将防竞态条件变量存储到全局作用域，供selectStation使用
             window.stationInputState = { isSelectingStation: () => isSelectingStation, setSelectingStation: (value) => { isSelectingStation = value; } };
-        }
-
-        // 显示站点建议列表
+        }        // 显示站点建议列表
         function showSuggestions(query) {
             const suggestions = document.getElementById('stationSuggestions');
             const currentStations = getCurrentDirectionStations();
 
             if (!query) {
-                // 显示所有站点，使用mousedown事件代替onclick以避免blur冲突
-                const html = currentStations.map(station =>
+                // 显示最近使用的站点和所有站点
+                const recentStations = storageManager.getRecentStations();
+                let html = '';
+                
+                if (recentStations.length > 0) {
+                    // 过滤当前方向的最近站点
+                    const validRecentStations = recentStations.filter(station => 
+                        currentStations.includes(station)
+                    );
+                    
+                    if (validRecentStations.length > 0) {
+                        html += `<div style="background: #f5f5f5; padding: 5px 15px; font-size: 12px; color: #666; border-bottom: 1px solid #ddd;">最近使用</div>`;
+                        html += validRecentStations.map(station =>
+                            `<div class="station-suggestion-item" style="background: #fafafa;" onmousedown="selectStation('${station}')" onclick="event.preventDefault()">${station}</div>`
+                        ).join('');
+                        html += `<div style="background: #f5f5f5; padding: 5px 15px; font-size: 12px; color: #666; border-bottom: 1px solid #ddd;">所有站点</div>`;
+                    }
+                }
+                
+                html += currentStations.map(station =>
                     `<div class="station-suggestion-item" onmousedown="selectStation('${station}')" onclick="event.preventDefault()">${station}</div>`
                 ).join('');
+                
                 suggestions.innerHTML = html;
                 suggestions.style.display = 'block';
                 return;
@@ -2843,12 +3072,16 @@
                     window.stationInputState.setSelectingStation(false);
                 }
             }, 100);
-        }
-
-        // 更新当前车站
+        }        // 更新当前车站
         function updateCurrentStation(station) {
             currentStation = station;
             document.getElementById('currentStationInput').value = station;
+            
+            // 保存到本地存储
+            if (storageManager.isAvailable()) {
+                storageManager.saveCurrentStation(station);
+            }
+            
             // 重新渲染列车列表以更新站点状态
             renderTrainList();
         }
@@ -2912,11 +3145,13 @@
                 refreshBtn.disabled = currentDataSource !== '12306';
                 refreshBtn.textContent = '刷新12306数据';
             }
-        }
-
-        // 初始化和定时更新
+        }        // 初始化和定时更新
         async function init() {
             updateCurrentTime();
+            
+            // 从本地存储加载用户设置
+            initializeUserSettings();
+            
             initStationInput();
 
             // 默认使用模拟数据初始化
@@ -2957,11 +3192,16 @@
                 }, 200);
             }
         });        // 设置数据源
-        async function setDataSource(source) {
+        async function setDataSource(source, saveToStorage = true) {
             console.log('切换数据源到:', source);
 
             // 更新当前数据源
             currentDataSource = source;
+
+            // 保存到本地存储
+            if (saveToStorage && storageManager.isAvailable()) {
+                storageManager.saveDataSource(source);
+            }
 
             // 更新按钮状态
             const simulationBtn = document.getElementById('simulationDataBtn');
@@ -3037,6 +3277,113 @@
         window.selectStation = selectStation;
         window.refreshTrainData = refreshTrainData;
         window.setDataSource = setDataSource;
+        
+        // ---设置面板管理---
+        
+        // 切换设置面板显示/隐藏
+        function toggleSettingsPanel() {
+            const panel = document.getElementById('settingsPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                updateSettingsDisplay();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+        
+        // 更新设置面板显示内容
+        function updateSettingsDisplay() {
+            if (!storageManager.isAvailable()) {
+                document.getElementById('recentStationsList').textContent = '本地存储不可用';
+                document.getElementById('currentSettings').textContent = '本地存储不可用';
+                return;
+            }
+            
+            const settings = storageManager.getSettings();
+            const recentStations = storageManager.getRecentStations();
+            
+            // 显示最近使用的站点
+            const recentStationsText = recentStations.length > 0 
+                ? recentStations.join('、') 
+                : '暂无记录';
+            document.getElementById('recentStationsList').textContent = recentStationsText;
+            
+            // 显示当前设置
+            const settingsText = `当前站点: ${settings.currentStation} | 方向: ${settings.currentDirection === 'huizhou' ? '惠州方向' : '肇庆方向'} | 数据源: ${settings.dataSource === 'simulation' ? '模拟数据' : '12306数据'}`;
+            document.getElementById('currentSettings').textContent = settingsText;
+        }
+        
+        // 导出设置
+        function exportSettings() {
+            if (!storageManager.isAvailable()) {
+                alert('本地存储不可用，无法导出设置');
+                return;
+            }
+            
+            const settingsJson = storageManager.exportSettings();
+            const blob = new Blob([settingsJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `gdic-route-map-settings-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('设置已导出到下载文件');
+        }
+        
+        // 导入设置
+        function importSettings(event) {
+            if (!storageManager.isAvailable()) {
+                alert('本地存储不可用，无法导入设置');
+                return;
+            }
+            
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const settingsJson = e.target.result;
+                    if (storageManager.importSettings(settingsJson)) {
+                        alert('设置导入成功，页面将刷新以应用新设置');
+                        location.reload();
+                    } else {
+                        alert('设置导入失败，请检查文件格式');
+                    }
+                } catch (error) {
+                    alert('设置导入失败: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // 清除所有设置
+        function clearAllSettings() {
+            if (!storageManager.isAvailable()) {
+                alert('本地存储不可用，无法清除设置');
+                return;
+            }
+            
+            if (confirm('确定要清除所有本地存储的设置吗？这将删除最近使用的站点和所有偏好设置。')) {
+                if (storageManager.clearSettings()) {
+                    alert('设置已清除，页面将刷新以应用默认设置');
+                    location.reload();
+                } else {
+                    alert('清除设置失败');
+                }
+            }
+        }
+        
+        // 将设置管理函数设置为全局
+        window.toggleSettingsPanel = toggleSettingsPanel;
+        window.exportSettings = exportSettings;
+        window.importSettings = importSettings;
+        window.clearAllSettings = clearAllSettings;
     </script>
 </body>
 
