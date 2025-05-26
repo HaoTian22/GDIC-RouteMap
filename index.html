@@ -60,7 +60,9 @@
             border-color: #ff8c00;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
             background: white;
-        }        .station-suggestions {
+        }
+
+        .station-suggestions {
             position: absolute;
             top: 100%;
             left: 50%;
@@ -528,7 +530,9 @@
         .train-item.slide-up-small {
             animation: slideUpSmoothSmall 1.5s ease forwards;
             pointer-events: none !important;
-        }        /* 动态上移动画 - 距离通过CSS变量控制 */
+        }
+
+        /* 动态上移动画 - 距离通过CSS变量控制 */
         @keyframes slideUpDynamic {
             0% {
                 transform: translateY(0px);
@@ -712,7 +716,10 @@
                 background: #e67e22;
                 box-shadow: 0 0 15px rgba(230, 126, 34, 1);
             }
-        }        @media (max-width: 768px) {
+        }
+
+        @media (max-width: 768px) {
+
             /* 调整外边距和内边距 */
             body {
                 padding: 10px;
@@ -742,12 +749,12 @@
             }
 
             /* 隐藏桌面端的布局元素 */
-            .train-row > .train-type:nth-child(1),
-            .train-row > div:nth-child(2):not(.train-main-info),
-            .train-row > .time:not(.mobile-time),
-            .train-row > .destination:not(.mobile-destination), 
-            .train-row > .platform:not(.mobile-platform),
-            .train-row > .status:not(.mobile-status) {
+            .train-row>.train-type:nth-child(1),
+            .train-row>div:nth-child(2):not(.train-main-info),
+            .train-row>.time:not(.mobile-time),
+            .train-row>.destination:not(.mobile-destination),
+            .train-row>.platform:not(.mobile-platform),
+            .train-row>.status:not(.mobile-status) {
                 display: none;
             }
 
@@ -1147,7 +1154,7 @@
     </div>
 
 
-    <script>        
+    <script>
         // ---固定数据---
 
         // 所有站点按顺序排列（基于真实C7514/C7515列车案例）
@@ -1365,7 +1372,7 @@
 
             console.log(`方向已切换为: ${direction === 'huizhou' ? '惠州方向' : '肇庆方向'}`);
         }
-        
+
         // ---页面动效---
         // 滚动管理器
         class ScrollManager {
@@ -1667,9 +1674,9 @@
 
             // 启动全局同步滚动
             scrollManager.startGlobalScrolling();
-        }      
-        
-        
+        }
+
+
         // ---12306 API集成---
 
         // 12306 API集成类
@@ -1763,8 +1770,8 @@
                     console.error('加载车站代码失败:', error);
                     throw error; // 重新抛出错误，强制失败
                 }
-            }            
-            
+            }
+
             // 获取车站代码
             getStationCode(stationName) {
                 // 检查车站代码是否已加载
@@ -1794,8 +1801,8 @@
 
                 console.warn(`未找到车站代码: ${stationName}，可用车站代码数量: ${this.stationCodes.size}`);
                 return null;
-            }            
-            
+            }
+
             // 查询站与站间的列车信息         
             async queryTrains(fromStation, toStation, date) {
                 // 确保已初始化
@@ -1859,8 +1866,8 @@
                     }
                     return null;
                 }).filter(train => train !== null);
-            }            
-            
+            }
+
             // 异步查询列车详细信息
             async queryTrainDetails(trainNo, fromCode, toCode, date) {
                 // 确保已初始化
@@ -1907,7 +1914,7 @@
                     return [];
                 }
             }
-            
+
         }
         // 调用前面的函数，创建Railway12306API实例
         const railway12306 = new Railway12306API();
@@ -1934,7 +1941,7 @@
             } else {
                 return '普通';
             }
-        }        
+        }
 
         // 显示当前时间
         function updateCurrentTime() {
@@ -2067,8 +2074,8 @@
             }
 
             return false; // 状态无变化
-        }        
-        
+        }
+
         // 智能状态刷新 - 逐个更新列车状态，不重新渲染整个列表
         function scheduleSmartStatusRefresh() {
             const now = new Date();
@@ -2145,7 +2152,8 @@
                 }
 
                 scheduleSmartStatusRefresh(); // 递归安排下次刷新
-            }, refreshInterval);        }
+            }, refreshInterval);
+        }
 
         // 检测当前是否为移动端布局
         function isMobileLayout() {
@@ -2155,21 +2163,21 @@
         // 计算列车项的实际高度（包括margin）
         function calculateTrainItemHeight(trainElement) {
             if (!trainElement) return 0;
-            
+
             const rect = trainElement.getBoundingClientRect();
             const computedStyle = getComputedStyle(trainElement);
             const marginTop = parseFloat(computedStyle.marginTop) || 0;
             const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
-            
+
             const totalHeight = rect.height + marginTop + marginBottom;
-            
+
             // 在移动端，确保高度计算包含所有子元素
             if (isMobileLayout()) {
                 console.log(`📱 移动端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
             } else {
                 console.log(`💻 桌面端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
             }
-            
+
             return totalHeight;
         }
 
@@ -2197,7 +2205,7 @@
                     const actualType = getTrainTypeByNumber(train.number);
                     const isExpress = actualType === '快车';
                     const isSuperExpress = actualType === '特快';
-                    
+
                     // 使用当前方向的停靠站
                     const currentExpressStops = getCurrentDirectionExpressStops();
                     const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
@@ -2214,7 +2222,7 @@
                 // 计算所有被淡出列车的总高度
                 let totalFadedHeight = 0;
                 const fadedTrainElements = [];
-                
+
                 trainsToFadeOut.forEach(index => {
                     const trainElement = document.querySelector(`[data-train-index="${index}"]`);
                     if (trainElement) {
@@ -2224,13 +2232,13 @@
                             element: trainElement,
                             height: trainHeight
                         });
-                        
+
                         console.log(`📏 列车${trainData[index]?.number || index} 总高度: ${trainHeight.toFixed(2)}px`);
                     }
                 });
 
                 console.log(`📐 被淡出列车总高度: ${totalFadedHeight.toFixed(2)}px`);
-                
+
                 // 开始淡出动画
                 trainsToFadeOut.forEach(index => {
                     const trainElement = document.querySelector(`[data-train-index="${index}"]`);
@@ -2240,14 +2248,14 @@
                 });
 
                 // 2秒后（淡出动画完成）开始其他列车的上移动画
-                setTimeout(() => {                    
+                setTimeout(() => {
                     // 为其他列车添加上移动画，使用计算出的动态距离
                     const allTrainElements = document.querySelectorAll('.train-item:not(.fade-out)');
                     allTrainElements.forEach(element => {
                         if (!element.classList.contains('slide-up') && !element.classList.contains('slide-up-small')) {
                             // 设置动态滚动距离
                             element.style.setProperty('--slide-distance', `-${totalFadedHeight}px`);
-                            
+
                             // 根据是否有不停站列车被淡出来决定使用哪种上移动画类
                             if (hasNotStoppingTrain) {
                                 element.classList.add('slide-up-small');
@@ -2275,7 +2283,7 @@
                 // 如果没有需要淡出的列车，不进行任何操作
                 console.log('ℹ️ 无需要淡出的列车');
             }
-        }function getNextDeparture() {
+        } function getNextDeparture() {
             // 查找真正"即将发车"状态的列车（4分钟内发车）
             for (let train of trainData) {
                 // 使用新的跨天时间差计算函数
@@ -2289,8 +2297,8 @@
 
             // 如果没有即将发车的列车，返回null（不高亮任何列车）
             return null;
-        } 
-        
+        }
+
         // 渲染车站列表显示
         function renderStationsDisplay(train, index, isPassing = false) {
             // 如果是通过状态，返回简化的显示
@@ -2412,7 +2420,7 @@
 
             // 使用当前方向的站点列表
             const currentDirectionStations = getCurrentDirectionStations();
-            
+
             // 在查找终点站索引时，去除可能存在的空格以便正确匹配
             let destinationIndex = -1;
             if (train.destination) {
@@ -2443,7 +2451,7 @@
             // 生成站点标签
             const stationTags = stationsToShow.map((station) => {
                 let tagClass = 'mobile-station-tag';
-                
+
                 // 判断站点状态
                 if (station === currentStation) {
                     tagClass += ' current';
@@ -2466,7 +2474,7 @@
             }).join('');
 
             const trainTypeText = isSuperExpress ? '特快' : (isExpress ? '快车' : '普通');
-            
+
             // 使用当前方向的停靠站计算停站数
             const currentExpressStops = getCurrentDirectionExpressStops();
             const currentSuperExpressStops = getCurrentDirectionSuperExpressStops();
@@ -2490,7 +2498,7 @@
         // 初始化列车Table
         function renderTrainList() {
             const trainListElement = document.getElementById('trainList');
-            console.log('🔄 全局初始化列车列表...');            trainListElement.innerHTML = trainData.map((train, index) => {
+            console.log('🔄 全局初始化列车列表...'); trainListElement.innerHTML = trainData.map((train, index) => {
                 // 根据车次号动态判断列车类型
                 const actualType = getTrainTypeByNumber(train.number);
                 const typeClass = actualType === '特快' ? 'super-express' :
@@ -2584,7 +2592,7 @@
             setTimeout(manageFadeOutTrains, 500);
         }
 
-        
+
         // 列车数据（根据当前数据源使用12306数据或模拟数据）
         let trainData = [...simulationTrainData]; // 默认使用模拟数据
 
@@ -2702,7 +2710,7 @@
                 };
             }
         }
-        
+
         // 查找最近的特快车停靠站
         function findNearestSuperExpressStation(currentStationName) {
             const currentDirectionStations = getCurrentDirectionStations();
@@ -2724,8 +2732,8 @@
 
             // 如果向前找不到，返回对应方向的最后一个特快车站
             return currentDirection === 'zhaoqing' ? "肇庆站" : "小金口站";
-        }        
-        
+        }
+
         // 站点输入框选择功能
         function initStationInput() {
             const stationInput = document.getElementById('currentStationInput');
@@ -2843,8 +2851,8 @@
             document.getElementById('currentStationInput').value = station;
             // 重新渲染列车列表以更新站点状态
             renderTrainList();
-        }        
-        
+        }
+
         // 刷新12306数据
         async function refreshTrainData() {
             // 只在使用12306数据源时工作
@@ -2904,8 +2912,8 @@
                 refreshBtn.disabled = currentDataSource !== '12306';
                 refreshBtn.textContent = '刷新12306数据';
             }
-        }        
-        
+        }
+
         // 初始化和定时更新
         async function init() {
             updateCurrentTime();
