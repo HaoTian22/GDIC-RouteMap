@@ -126,7 +126,7 @@ function setCache(key, data) {
     console.log('延迟保存缓存到文件...');
     saveCacheToFile();
     saveTimer = null;
-  }, 20 * 1000); // 20秒后执行
+  }, 5 * 1000); // 5秒后执行
 }
 
 // 基本的CORS配置

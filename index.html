@@ -1407,7 +1407,9 @@
                 return reversedSuperExpressStops;
             }
             return superExpressStops; // 惠州方向：保持原始Set
-        }        // 设置方向
+        }        
+        
+        // 设置方向
         function setDirection(direction, saveToStorage = true) {
             currentDirection = direction;
 
@@ -2278,6 +2280,7 @@
 
             if (shouldFadeOut && !trainElement.classList.contains('pre-fade')) {
                 trainElement.classList.add('pre-fade');
+                return true; // 状态有变化，标记为需要淡出
             }
 
             return false; // 状态无变化
@@ -2302,7 +2305,7 @@
                     timeDiff - 15, // 开始检票
                     timeDiff - 4,  // 即将发车
                     timeDiff,      // 已发车
-                    timeDiff + 3   // 发车后3分钟（淡出时机）
+                    timeDiff + 3,  // 发车后3分钟（淡出时机）
                 ].filter(diff => diff > 0 && diff < minTimeDiff);
 
                 // 找到最近的状态变化的剩余时间nearestStatusChange
@@ -3061,7 +3064,9 @@
                     window.stationInputState.setSelectingStation(false);
                 }
             }, 100);
-        }        // 更新当前车站
+        }        
+        
+        // 更新当前车站
         function updateCurrentStation(station) {
             currentStation = station;
             document.getElementById('currentStationInput').value = station;
