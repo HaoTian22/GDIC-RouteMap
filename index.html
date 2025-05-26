@@ -528,26 +528,22 @@
         .train-item.slide-up-small {
             animation: slideUpSmoothSmall 1.5s ease forwards;
             pointer-events: none !important;
-        }
-
-        @keyframes slideUpSmooth {
+        }        /* 动态上移动画 - 距离通过CSS变量控制 */
+        @keyframes slideUpDynamic {
             0% {
                 transform: translateY(0px);
             }
 
             100% {
-                transform: translateY(-156.33px);
+                transform: translateY(var(--slide-distance, -156.33px));
             }
         }
 
-        @keyframes slideUpSmoothSmall {
-            0% {
-                transform: translateY(0px);
-            }
-
-            100% {
-                transform: translateY(-75px);
-            }
+        /* 其他列车上移补充动画 - 使用动态距离 */
+        .train-item.slide-up,
+        .train-item.slide-up-small {
+            animation: slideUpDynamic 1.5s ease forwards;
+            pointer-events: none !important;
         }
 
         /* 淡出前的预警状态 */
@@ -2149,9 +2145,34 @@
                 }
 
                 scheduleSmartStatusRefresh(); // 递归安排下次刷新
-            }, refreshInterval);
-        }        
-        
+            }, refreshInterval);        }
+
+        // 检测当前是否为移动端布局
+        function isMobileLayout() {
+            return window.innerWidth <= 768;
+        }
+
+        // 计算列车项的实际高度（包括margin）
+        function calculateTrainItemHeight(trainElement) {
+            if (!trainElement) return 0;
+            
+            const rect = trainElement.getBoundingClientRect();
+            const computedStyle = getComputedStyle(trainElement);
+            const marginTop = parseFloat(computedStyle.marginTop) || 0;
+            const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+            
+            const totalHeight = rect.height + marginTop + marginBottom;
+            
+            // 在移动端，确保高度计算包含所有子元素
+            if (isMobileLayout()) {
+                console.log(`📱 移动端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
+            } else {
+                console.log(`💻 桌面端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
+            }
+            
+            return totalHeight;
+        }
+
         // 管理列车的淡出和移除
         function manageFadeOutTrains() {
             // 循环标记需要淡出的列车
@@ -2190,8 +2211,27 @@
                         hasNotStoppingTrain = true;
                     }
                 });
+                // 计算所有被淡出列车的总高度
+                let totalFadedHeight = 0;
+                const fadedTrainElements = [];
+                
+                trainsToFadeOut.forEach(index => {
+                    const trainElement = document.querySelector(`[data-train-index="${index}"]`);
+                    if (trainElement) {
+                        const trainHeight = calculateTrainItemHeight(trainElement);
+                        totalFadedHeight += trainHeight;
+                        fadedTrainElements.push({
+                            element: trainElement,
+                            height: trainHeight
+                        });
+                        
+                        console.log(`📏 列车${trainData[index]?.number || index} 总高度: ${trainHeight.toFixed(2)}px`);
+                    }
+                });
 
-                // 先开始淡出动画
+                console.log(`📐 被淡出列车总高度: ${totalFadedHeight.toFixed(2)}px`);
+                
+                // 开始淡出动画
                 trainsToFadeOut.forEach(index => {
                     const trainElement = document.querySelector(`[data-train-index="${index}"]`);
                     if (trainElement && !trainElement.classList.contains('fade-out')) {
@@ -2200,18 +2240,21 @@
                 });
 
                 // 2秒后（淡出动画完成）开始其他列车的上移动画
-                setTimeout(() => {
-                    // 为其他列车添加上移动画
+                setTimeout(() => {                    
+                    // 为其他列车添加上移动画，使用计算出的动态距离
                     const allTrainElements = document.querySelectorAll('.train-item:not(.fade-out)');
                     allTrainElements.forEach(element => {
                         if (!element.classList.contains('slide-up') && !element.classList.contains('slide-up-small')) {
-                            // 根据是否有不停站列车被淡出来决定使用哪种上移动画
+                            // 设置动态滚动距离
+                            element.style.setProperty('--slide-distance', `-${totalFadedHeight}px`);
+                            
+                            // 根据是否有不停站列车被淡出来决定使用哪种上移动画类
                             if (hasNotStoppingTrain) {
                                 element.classList.add('slide-up-small');
-                                console.log(`🔼 列车使用小幅上移动画（70px），因为有不停站列车被淡出`);
+                                console.log(`🔼 列车使用小幅上移动画（${totalFadedHeight.toFixed(2)}px），因为有不停站列车被淡出`);
                             } else {
                                 element.classList.add('slide-up');
-                                console.log(`🔼 列车使用常规上移动画（155px）`);
+                                console.log(`🔼 列车使用常规上移动画（${totalFadedHeight.toFixed(2)}px）`);
                             }
                         }
                     });
@@ -2527,11 +2570,13 @@
                     </div>
                 `;
             }).join('');// 初始化同步滚动功能
-            setTimeout(initializeScrolling, 100);            // 清理之前的动画类
+            setTimeout(initializeScrolling, 100);            // 清理之前的动画类和CSS变量
             setTimeout(() => {
                 const slideUpElements = document.querySelectorAll('.train-item.slide-up, .train-item.slide-up-small');
                 slideUpElements.forEach(element => {
                     element.classList.remove('slide-up', 'slide-up-small');
+                    // 清理动态设置的CSS变量
+                    element.style.removeProperty('--slide-distance');
                 });
             }, 4200); // 2s淡出等待 + 2s上移动画 + 0.2s缓冲
 
