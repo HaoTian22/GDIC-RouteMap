@@ -526,12 +526,6 @@
             pointer-events: none !important;
         }
 
-        /* 针对不停站列车淡出后的上移动画 */
-        .train-item.slide-up-small {
-            animation: slideUpSmoothSmall 1.5s ease forwards;
-            pointer-events: none !important;
-        }
-
         /* 动态上移动画 - 距离通过CSS变量控制 */
         @keyframes slideUpDynamic {
             0% {
@@ -544,8 +538,7 @@
         }
 
         /* 其他列车上移补充动画 - 使用动态距离 */
-        .train-item.slide-up,
-        .train-item.slide-up-small {
+        .train-item.slide-up {
             animation: slideUpDynamic 1.5s ease forwards;
             pointer-events: none !important;
         }
@@ -1595,7 +1588,7 @@
                         });
                         console.log('开始滚动轨道:', scrollingTracks.join(', '));
                     }
-                }, 2000);
+                }, 5000);
             }
 
             pauseAllScrolling() {
@@ -2466,18 +2459,12 @@
                     // 为其他列车添加上移动画，使用计算出的动态距离
                     const allTrainElements = document.querySelectorAll('.train-item:not(.fade-out)');
                     allTrainElements.forEach(element => {
-                        if (!element.classList.contains('slide-up') && !element.classList.contains('slide-up-small')) {
+                        if (!element.classList.contains('slide-up')) {
                             // 设置动态滚动距离
                             element.style.setProperty('--slide-distance', `-${totalFadedHeight}px`);
 
-                            // 根据是否有不停站列车被淡出来决定使用哪种上移动画类
-                            if (hasNotStoppingTrain) {
-                                element.classList.add('slide-up-small');
-                                console.log(`🔼 列车使用小幅上移动画（${totalFadedHeight.toFixed(2)}px），因为有不停站列车被淡出`);
-                            } else {
-                                element.classList.add('slide-up');
-                                console.log(`🔼 列车使用常规上移动画（${totalFadedHeight.toFixed(2)}px）`);
-                            }
+                            element.classList.add('slide-up');
+                            console.log(`🔼 列车使用常规上移动画（${totalFadedHeight.toFixed(2)}px）`);
                         }
                     });
                 }, 1000);
@@ -2794,9 +2781,9 @@
             }).join('');// 初始化同步滚动功能
             setTimeout(initializeScrolling, 100);            // 清理之前的动画类和CSS变量
             setTimeout(() => {
-                const slideUpElements = document.querySelectorAll('.train-item.slide-up, .train-item.slide-up-small');
+                const slideUpElements = document.querySelectorAll('.train-item.slide-up');
                 slideUpElements.forEach(element => {
-                    element.classList.remove('slide-up', 'slide-up-small');
+                    element.classList.remove('slide-up');
                     // 清理动态设置的CSS变量
                     element.style.removeProperty('--slide-distance');
                 });
