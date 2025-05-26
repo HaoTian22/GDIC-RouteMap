@@ -26,7 +26,8 @@ echo ✅ Node.js 已安装: %NODE_VERSION%
 echo.
 echo 2. 检查NPM是否可用...
 npm --version >nul 2>&1
-if %errorlevel% neq 0 (
+echo 检查完成
+IF %ERRORLEVEL% NEQ 0 (
     echo ❌ NPM 不可用
     pause
     exit /b 1
@@ -34,16 +35,6 @@ if %errorlevel% neq 0 (
 
 for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
 echo ✅ NPM 已安装: %NPM_VERSION%
-
-echo.
-echo 3. 进入Proxy目录...
-cd /d "%~dp0Proxy"
-if %errorlevel% neq 0 (
-    echo ❌ 无法进入Proxy目录
-    pause
-    exit /b 1
-)
-echo ✅ 已进入Proxy目录
 
 echo.
 echo 4. 检查依赖是否已安装...
