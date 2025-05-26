@@ -2,12 +2,16 @@
 
 ## 概述
 
-本项目意在提供html和js模拟一个现代化的城际列车出发板，展示列车的实时信息和停靠站点。
-![image](https://github.com/user-attachments/assets/5f55ef77-1243-43d8-960c-2348e6dbc454)
+使用html和js模拟一个可用的现代化的城际列车出发板，展示列车的实时信息和停靠站点。
 
-此项目包含一个前端页面（index.html）和一个后端代理服务器，用于解决访问12306 API时的跨域问题。
+预览：  
+横屏模式
+![image](https://github.com/user-attachments/assets/cdb42524-9aa4-4e18-ae30-a45d266cad42)
 
-[🔗在线Demo](https://gdic-route-map.vercel.app/)（看着点用，我Serverless Function免费额度没多少，另外12306的API搞多了会禁止获取，模拟数据倒是能随便玩）
+竖屏模式
+![image](https://github.com/user-attachments/assets/5283f6b7-6489-4697-9b5e-23044ba4d820)
+
+[🔗在线Demo](https://departureboard.haotian22.top/)（看着点用，我Serverless Function免费额度没多少，另外12306的API搞多了会禁止获取，模拟数据倒是能随便玩）
 
 ## 环境要求
 1. **Node.js** (版本 14 或更高)
@@ -35,7 +39,7 @@ git clone https://github.com/HaoTian22/GDIC-RouteMap.git
 有两种方式启动代理服务器：
 
 #### 方式一：使用批处理文件（推荐）
-双击运行 `start-proxy.bat` 文件
+双击运行 `start.bat` 文件
 
 #### 方式二：手动启动
 1. 打开命令提示符
@@ -60,23 +64,6 @@ git clone https://github.com/HaoTian22/GDIC-RouteMap.git
 1. 确保代理服务器正在运行（端口3001）
 2. 打开浏览器`http://localhost:3001`
 3. 您应该能看到列车出发板页面
-## 验证安装
-
-### 检查Node.js安装
-在命令提示符中运行：
-```cmd
-node --version
-npm --version
-```
-应该显示版本号。
-
-### 检查代理服务器
-代理服务器启动后，访问：
-- proxy-status.html - 应该返回
-
-### 检查12306连接
-访问以下地址测试12306连接：
-- http://localhost:3001/api/station-codes - 应该返回车站代码数据
 
 ## 项目结构
 ```
@@ -117,14 +104,14 @@ A:
 ### Q: 无法获取12306数据
 A:
 1. 检查网络连接
-2. 12306网站可能有访问限制
+2. 12306网站可能有访问限制(虽然我加了本地缓存，但是没缓存的部分请求太多还是会有问题的)
 3. 系统会自动回退到模拟数据
 
 ### Q: 前端页面无法连接代理服务器
 A:
 1. 确保代理服务器正在运行
 2. 检查前端页面的代理地址设置
-3. 确保没有防火墙阻止连接
+3. 确保没有防火墙阻止连接(3001端口开放)
 
 ## 开发说明
 
