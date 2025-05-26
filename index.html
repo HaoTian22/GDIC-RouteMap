@@ -1706,8 +1706,8 @@
             const trainNum = parseInt(numberOnly);
 
             if (trainNum >= 6880 && trainNum <= 6889 || trainNum >= 6860 && trainNum <= 6869) {
-                const today = new Date().getDate();
-                if (today >= new Date('2025-05-28').getDate()) { // 特殊处理：2025年5月28日后运行图
+                const today = new Date()
+                if (today >= new Date('2025-05-28')) { // 特殊处理：2025年5月28日后运行图
                     return '特快';
                 } else {
                     return '快车';
