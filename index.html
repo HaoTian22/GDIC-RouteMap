@@ -2100,20 +2100,6 @@
                     }
 
                     const data = await response.json(); if (data.data && data.data.data) {
-                        // 检查列车是否包含"佛山西"站点（不含空格），如果包含则说明是其他线路的列车，直接过滤掉
-                        const stationNames = data.data.data.map(station => station.station_name);
-                        const hasFoshanXi = stationNames.some(name => {
-                            if (!name) return false;
-                            // 只检查不含空格的"佛山西"，含空格的"佛山 西"不过滤
-                            return name === '佛山西' || name === '佛山西站';
-                        });
-
-                        if (hasFoshanXi) {
-                            console.log(`🚫 列车${trainNo}包含佛山西站点，判定为其他线路列车，完全过滤掉`);
-                            console.log('📍 该列车停靠站点:', stationNames.join(' → '));
-                            return null; // 返回null表示该列车应被过滤掉
-                        }
-
                         console.log(`✅ 列车${trainNo}通过过滤检查，包含${data.data.data.length}个站点`);
                         return data.data.data;
                     }
@@ -2813,14 +2799,14 @@
                 // 找到当前站最近的特快车停靠站作为查询目标
                 const nearestSuperExpressStation = findNearestSuperExpressStation(currentStation);
 
-                console.log(`查询从 ${currentStation} 到 ${nearestSuperExpressStation} 的列车信息`);
-
-                // 尝试从12306获取数据
+                console.log(`查询从 ${currentStation} 到 ${nearestSuperExpressStation} 的列车信息`);                // 尝试从12306获取数据
                 const trains = await railway12306.queryTrains(currentStation, nearestSuperExpressStation, todayStr);
-
-                if (trains.length > 0) {
+                
+                // 过滤包含6t000的列车
+                const filteredTrains = trains.filter(train => train.trainNo && train.trainNo.includes('6t000'));
+                console.log(`🔍 列车过滤: 原始${trains.length}趟 -> 包含6t000的${filteredTrains.length}趟`);                if (filteredTrains.length > 0) {
                     // 将12306数据转换为我们的格式
-                    const convertedTrains = await Promise.all(trains.map(async (train, index) => {
+                    const convertedTrains = await Promise.all(filteredTrains.map(async (train, index) => {
                         try {
                             const details = await railway12306.queryTrainDetails(
                                 train.trainNo,
@@ -2828,12 +2814,6 @@
                                 railway12306.getStationCode(nearestSuperExpressStation),
                                 todayStr
                             );
-
-                            // 如果queryTrainDetails返回null，说明该列车被过滤掉了（包含佛山西站）
-                            if (details === null) {
-                                console.log(`🚫 列车${train.trainCode}被过滤（包含佛山西站），跳过该列车`);
-                                return null;
-                            }
 
                             // 如果details为空数组，说明API调用失败
                             if (!details || details.length === 0) {
@@ -2876,25 +2856,23 @@
 
                     // 过滤掉null值并检查是否有有效数据
                     const validTrains = convertedTrains.filter(train => train !== null);
-                    const filteredCount = convertedTrains.length - validTrains.length;
-
-                    console.log(`📊 列车过滤统计:`);
+                    const filteredCount = convertedTrains.length - validTrains.length;                    console.log(`📊 列车过滤统计:`);
                     console.log(`   原始查询到的列车: ${trains.length}`);
+                    console.log(`   包含6t000的列车: ${filteredTrains.length}`);
                     console.log(`   转换处理后数量: ${convertedTrains.length}`);
-                    console.log(`   被过滤的列车: ${filteredCount} (包含佛山西站或获取失败)`);
+                    console.log(`   被过滤的列车: ${filteredCount} (获取详情失败)`);
                     console.log(`   最终有效列车: ${validTrains.length}`);
 
                     if (validTrains.length > 0) {
                         trainData = validTrains;
                         console.log('✅ 成功获取12306数据，有效列车数量:', trainData.length);
-                        return { success: true, data: validTrains, source: '12306' };
-                    } else {
-                        console.warn('⚠️ 所有列车都被过滤或无法获取详细信息');
-                        throw new Error('所有列车都被过滤或无法获取详细信息');
+                        return { success: true, data: validTrains, source: '12306' };                    } else {
+                        console.warn('⚠️ 所有包含6t000的列车都被过滤或无法获取详细信息');
+                        throw new Error('所有包含6t000的列车都被过滤或无法获取详细信息');
                     }
                 } else {
-                    console.warn('⚠️ 12306 API返回空结果');
-                    throw new Error('12306 API返回空结果');
+                    console.warn('⚠️ 12306 API返回空结果或没有包含6t000的列车');
+                    throw new Error('12306 API返回空结果或没有包含6t000的列车');
                 }
 
             } catch (error) {
