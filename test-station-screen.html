@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车站大屏API测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .api-section {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .api-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .loading {
+            border-color: #ffc107;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚄 车站大屏API测试工具</h1>
+        <div class="info">
+            <strong>使用说明：</strong>
+            <ul>
+                <li><strong>方法2 (中国铁路API):</strong> 需要使用车站代码，如：CSQ(长沙)、PYQ(普宁)</li>
+                <li><strong>方法3 (苏州快享API):</strong> 需要使用车站名称，如：长沙南、北京西</li>
+                <li>请确保代理服务器运行在 localhost:3001</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 方法2：中国铁路API -->
+    <div class="container">
+        <div class="api-section">
+            <h3>🚉 方法2: 中国铁路API</h3>
+            <div class="form-group">
+                <label for="stationCode">车站代码:</label>
+                <input type="text" id="stationCode" value="CSQ" placeholder="例如: CSQ(长沙), PYQ(普宁)">
+            </div>
+            <div class="form-group">
+                <label for="type">屏幕类型:</label>
+                <select id="type">
+                    <option value="D">出发(D)</option>
+                    <option value="A">到达(A)</option>
+                </select>
+            </div>
+            <button onclick="testStationScreenCcrgt()">🔍 查询车站大屏 (方法2)</button>
+            <div id="result-ccrgt" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- 方法3：苏州快享API -->
+    <div class="container">
+        <div class="api-section">
+            <h3>🎯 方法3: 苏州快享API (智行)</h3>
+            <div class="form-group">
+                <label for="stationName">车站名称:</label>
+                <input type="text" id="stationName" value="长沙南" placeholder="例如: 长沙南, 北京西">
+            </div>
+            <div class="form-group">
+                <label for="screenFlag">屏幕标志:</label>
+                <select id="screenFlag">
+                    <option value="0">出发(0)</option>
+                    <option value="1">到达(1)</option>
+                </select>
+            </div>
+            <button onclick="testStationScreenSuanya()">🔍 查询车站大屏 (方法3)</button>
+            <div id="result-suanya" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- 统一API -->
+    <div class="container">
+        <div class="api-section">
+            <h3>🔥 统一API: 自动选择最佳后端</h3>
+            <div class="form-group">
+                <label for="unifiedStation">车站 (名称或代码):</label>
+                <input type="text" id="unifiedStation" value="长沙南" placeholder="支持车站名称（如：长沙南）或代码（如：CSQ）">
+            </div>
+            <div class="form-group">
+                <label for="unifiedScreenType">屏幕类型:</label>
+                <select id="unifiedScreenType">
+                    <option value="departure">出发</option>
+                    <option value="arrival">到达</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="unifiedProvider">API提供商:</label>
+                <select id="unifiedProvider">
+                    <option value="auto">自动选择</option>
+                    <option value="suanya">苏州快享</option>
+                    <option value="ccrgt">中国铁路</option>
+                </select>
+            </div>
+            <button onclick="testUnifiedStationScreen()">🔍 查询车站大屏 (统一API)</button>
+            <div id="result-unified" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = content;
+        }        function formatTrainData(data, provider) {
+            if (!data) return '无数据';
+            
+            let formatted = `=== ${provider} API 响应 ===\n`;
+            formatted += `提供商: ${data.provider || provider}\n`;
+            formatted += `时间戳: ${data.timestamp || new Date().toISOString()}\n`;
+            formatted += `查询成功: ${data.success ? '✅' : '❌'}\n\n`;
+            
+            if (data.success && data.data) {
+                const { stationName, screenType, trains, totalCount } = data.data;
+                formatted += `车站: ${stationName}\n`;
+                formatted += `屏幕类型: ${screenType === 'departure' ? '出发' : '到达'}\n`;
+                formatted += `车次总数: ${totalCount}\n\n`;
+                
+                if (trains && trains.length > 0) {
+                    formatted += '=== 车次信息 ===\n';
+                    trains.forEach((train, index) => {
+                        formatted += `${index + 1}. ${train.trainCode || train.trainNo}\n`;
+                        formatted += `   终点站: ${train.endStation}\n`;
+                        formatted += `   出发时间: ${train.departureTime}\n`;
+                        formatted += `   状态: ${train.status}\n`;
+                        formatted += '\n';
+                    });
+                } else {
+                    formatted += '暂无车次信息\n';
+                }
+            } else {
+                formatted += `查询失败: ${data.error || '未知错误'}\n`;
+                if (data.rawData) {
+                    formatted += '\n=== 原始响应数据 ===\n';
+                    formatted += JSON.stringify(data.rawData, null, 2);
+                }
+            }
+            
+            return formatted;
+        }
+
+        function getTrainStatus(status) {
+            const statusMap = {
+                1: '正常',
+                2: '晚点',
+                3: '停运',
+                4: '检票',
+                5: '正在检票'
+            };
+            return statusMap[status] || `未知(${status})`;
+        }        async function testStationScreenCcrgt() {
+            const stationCode = document.getElementById('stationCode').value.trim();
+            const type = document.getElementById('type').value;
+            
+            if (!stationCode) {
+                showResult('result-ccrgt', '请输入车站代码', 'error');
+                return;
+            }
+            
+            showResult('result-ccrgt', '正在查询中国铁路API...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/station-screen-ccrgt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        stationCode: stationCode,
+                        type: type
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const resultType = data.success ? 'success' : 'error';
+                    showResult('result-ccrgt', formatTrainData(data, 'CCRGT'), resultType);
+                } else {
+                    showResult('result-ccrgt', `查询失败:\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('result-ccrgt', `网络错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStationScreenSuanya() {
+            const stationName = document.getElementById('stationName').value.trim();
+            const screenFlag = parseInt(document.getElementById('screenFlag').value);
+            
+            if (!stationName) {
+                showResult('result-suanya', '请输入车站名称', 'error');
+                return;
+            }
+            
+            showResult('result-suanya', '正在查询苏州快享API...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/station-screen-suanya`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        stationName: stationName,
+                        screenFlag: screenFlag
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const resultType = data.success ? 'success' : 'error';
+                    showResult('result-suanya', formatTrainData(data, 'Suanya'), resultType);
+                } else {
+                    showResult('result-suanya', `查询失败:\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('result-suanya', `网络错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUnifiedStationScreen() {
+            const station = document.getElementById('unifiedStation').value.trim();
+            const screenType = document.getElementById('unifiedScreenType').value;
+            const provider = document.getElementById('unifiedProvider').value;
+            
+            if (!station) {
+                showResult('result-unified', '请输入车站名称或代码', 'error');
+                return;
+            }
+            
+            showResult('result-unified', '正在查询统一API...', 'loading');
+            
+            try {
+                // 自动判断是车站名称还是代码
+                const isStationCode = /^[A-Z]{3}$/.test(station); // 3个大写字母认为是代码
+                const requestBody = {
+                    screenType: screenType,
+                    provider: provider
+                };
+                
+                if (isStationCode) {
+                    requestBody.stationCode = station;
+                } else {
+                    requestBody.stationName = station;
+                }
+                
+                const response = await fetch(`${API_BASE}/api/station-screen`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const resultType = data.success ? 'success' : 'error';
+                    showResult('result-unified', formatTrainData(data, 'Unified'), resultType);
+                } else {
+                    showResult('result-unified', `查询失败:\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('result-unified', `网络错误: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时的提示
+        window.addEventListener('load', () => {
+            console.log('车站大屏API测试工具已加载');
+            console.log('代理服务器地址:', API_BASE);
+        });
+    </script>
+</body>
+</html>
