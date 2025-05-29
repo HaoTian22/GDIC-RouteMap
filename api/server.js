@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+app.use('/', express.static('./')); // 设置静态资源访问路径
 const port = 3001;
 
 // 全局cookie存储
@@ -293,6 +294,7 @@ app.get('/api/query-trains', async (req, res) => {
     res.status(500).json({ error: '查询列车失败', message: error.message });
   }
 });
+
 // 获取车站大屏数据 - 方法2 (中国铁路)
 app.post('/api/station-screen-ccrgt', async (req, res) => {
   try {
@@ -397,8 +399,8 @@ function normalizeStationScreenData(rawData, provider, requestParams) {
       // 处理中国铁路API返回的数据
       if (rawData && rawData.code === 0 && rawData.data && Array.isArray(rawData.data.list)) {
         normalizedResponse.success = true;
-        normalizedResponse.data.totalCount = rawData.data.length;
-        normalizedResponse.data.trains = rawData.data.map(train => ({
+        normalizedResponse.data.totalCount = rawData.data.list.length;
+        normalizedResponse.data.trains = rawData.data.list.map(train => ({
           trainNo: train.trainCode || '',
           endStation: train.endStation || '',
           checkIn: train.wicket || '',
