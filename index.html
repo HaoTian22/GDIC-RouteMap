@@ -1099,9 +1099,12 @@
             background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
             color: #333;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }        
+        .data-source-btn:first-child {
+            border-right: 1px solid rgba(255, 215, 0, 0.3);
         }
 
-        .data-source-btn:first-child {
+        .data-source-btn:nth-child(2) {
             border-right: 1px solid rgba(255, 215, 0, 0.3);
         }
 
@@ -1161,9 +1164,7 @@
                 autocomplete="off">
             <div class="station-suggestions" id="stationSuggestions"></div>
         </div>
-        <div class="station-name">出发信息</div>
-
-        <div style="margin-top: 10px;">
+        <div class="station-name">出发信息</div>        <div style="margin-top: 10px;">
             <div class="data-source-selector">
                 <button class="data-source-btn active" id="simulationDataBtn" onclick="setDataSource('simulation')">
                     模拟数据
@@ -1171,9 +1172,12 @@
                 <button class="data-source-btn" id="api12306DataBtn" onclick="setDataSource('12306')">
                     12306数据
                 </button>
+                <button class="data-source-btn" id="unifiedApiDataBtn" onclick="setDataSource('unified')">
+                    统一API
+                </button>
             </div>
             <button id="refreshDataBtn" onclick="refreshTrainData()" class="refresh-btn" disabled>
-                刷新12306数据
+                刷新数据
             </button>
             <button id="settingsBtn" onclick="toggleSettingsPanel()" class="refresh-btn" style="margin-left: 5px;">
                 设置
@@ -1863,13 +1867,13 @@
                 currentStation = settings.currentStation;
                 currentDirection = settings.currentDirection;
                 currentDataSource = settings.dataSource;
+                console.log('从本地存储加载设置:', settings);
                 
                 // 更新UI显示
                 document.getElementById('currentStationInput').value = currentStation;
                 setDirection(currentDirection, false); // false 表示不保存到存储，避免重复保存
                 setDataSource(currentDataSource, false);
                 
-                console.log('从本地存储加载设置:', settings);
             } else {
                 console.warn('本地存储不可用，使用默认设置');
             }
@@ -2176,10 +2180,10 @@
             let timeDiff = departMinutes - currentMinutes;
 
             // 处理跨天情况：如果时间差小于-12小时，说明列车时间是第二天的
-            if (timeDiff < -720) { // -12 * 60 = -720分钟
-                timeDiff += 1440; // 加上一天的分钟数 (24 * 60 = 1440)
-                // console.log(`🌅 检测到跨天列车时间 ${departureTime}，调整时间差: ${timeDiff}分钟`);
-            }
+            // if (timeDiff < -720) { // -12 * 60 = -720分钟
+            //     timeDiff += 1440; // 加上一天的分钟数 (24 * 60 = 1440)
+            //     // console.log(`🌅 检测到跨天列车时间 ${departureTime}，调整时间差: ${timeDiff}分钟`);
+            // }
             return timeDiff;
         }
 
@@ -2376,11 +2380,11 @@
             const totalHeight = rect.height + marginTop + marginBottom;
 
             // 在移动端，确保高度计算包含所有子元素
-            if (isMobileLayout()) {
-                console.log(`📱 移动端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
-            } else {
-                console.log(`💻 桌面端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
-            }
+            // if (isMobileLayout()) {
+            //     console.log(`📱 移动端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
+            // } else {
+            //     console.log(`💻 桌面端列车高度详情: content=${rect.height.toFixed(2)}px, marginTop=${marginTop}px, marginBottom=${marginBottom}px, total=${totalHeight.toFixed(2)}px`);
+            // }
 
             return totalHeight;
         }
@@ -3066,10 +3070,140 @@
             renderTrainList();
         }
 
-        // 刷新12306数据
+        // 获取统一API数据
+        async function fetchUnifiedApiData() {
+            try {
+                console.log(`🌐 从统一API获取${currentStation}车站信息`);
+
+                // 构造请求体
+                const requestBody = {
+                    screenType: 'departure',
+                    provider: 'auto'
+                };
+
+                // 判断是否为车站代码格式 (三个大写字母)
+                const isStationCode = /^[A-Z]{3}$/.test(currentStation.replace('站', ''));
+                
+                if (isStationCode) {
+                    requestBody.stationCode = currentStation.replace('站', '');
+                } else {
+                    requestBody.stationName = currentStation.replace('站', '');
+                }
+
+                console.log('🚀 统一API请求参数:', requestBody);
+
+                // 发送请求到本地服务器的统一API
+                const response = await fetch('/api/station-screen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('📋 统一API原始数据:', data);
+
+                if (!data.success) {
+                    throw new Error(data.error || '统一API返回失败');
+                }
+
+                // 转换统一API数据到我们的格式
+                const convertedTrains = [];
+                if (data.data && Array.isArray(data.data.trains)) {
+                    data.data.trains.forEach((train, index) => {
+                        try {
+                            // 过滤城际列车 (C开头或包含6t000的列车号)
+                            const trainCode = train.trainCode || train.trainNo || '';
+                            if (!trainCode.startsWith('C') && !trainCode.includes('6t000')) {
+                                return; // 跳过非城际列车
+                            }
+
+                            // 判断列车类型
+                            const trainType = getTrainTypeByNumber(trainCode);
+
+                            // 处理目的地
+                            let destination = train.endStation || train.destination || '未知';
+                            if (!destination.endsWith('站')) {
+                                destination = destination.replace(/\s+/g, ''); // 去除空格
+                                destination += '站';
+                            }
+
+                            // 处理时间格式
+                            let departureTime = train.startTime || train.departureTime || '--:--';
+                            if (departureTime.length === 5) {
+                                // 确保时间格式为 HH:MM
+                                departureTime = departureTime;
+                            }
+
+                            // 处理状态
+                            let status = train.status || '准点';
+                            if (status === '正点' || status === '准时') {
+                                status = '准点';
+                            }
+
+                            const convertedTrain = {
+                                type: trainType,
+                                number: trainCode,
+                                time: departureTime,
+                                destination: destination,
+                                platform: train.platform || train.trackNo || '--',
+                                status: status,
+                                note: train.note || train.carriages || '请注意车厢号',
+                                originalData: train // 保存原始数据用于调试
+                            };
+
+                            convertedTrains.push(convertedTrain);
+                            // console.log(`✅ 转换列车: ${trainCode} -> ${destination} (${departureTime})`);
+                        } catch (error) {
+                            console.error('转换单个列车数据失败:', error, train);
+                        }
+                    });
+                }
+
+                console.log(`📊 统一API数据转换完成: ${convertedTrains.length}趟列车`);
+
+                if (convertedTrains.length === 0) {
+                    console.warn('⚠️ 没有找到符合条件的城际列车');
+                    return {
+                        success: false,
+                        error: '没有找到符合条件的城际列车数据'
+                    };
+                }
+
+                // 按时间排序
+                convertedTrains.sort((a, b) => {
+                    const timeA = a.time.replace(':', '');
+                    const timeB = b.time.replace(':', '');
+                    return timeA.localeCompare(timeB);
+                });
+
+                // 更新全局数据
+                trainData = convertedTrains;
+
+                return {
+                    success: true,
+                    count: convertedTrains.length,
+                    source: 'unified-api'
+                };
+
+            } catch (error) {
+                console.error('❌ 统一API调用失败:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // 刷新数据
         async function refreshTrainData() {
-            // 只在使用12306数据源时工作
-            if (currentDataSource !== '12306') {
+            // 只在使用API数据源时工作
+            if (currentDataSource === 'simulation') {
                 console.log('当前数据源为模拟数据，刷新功能不可用');
                 return;
             }
@@ -3083,8 +3217,27 @@
             dataSource.textContent = '数据源: 获取中...';
 
             try {
-                const result = await fetchTrainData();
-                if (result.success) {
+                let result;
+                
+                if (currentDataSource === '12306') {
+                    result = await fetchTrainData();
+                    if (result.success) {
+                        dataSource.textContent = '数据源: 12306 API';
+                        console.log('✅ 12306数据刷新成功');
+                    } else {
+                        throw new Error(result.error);
+                    }
+                } else if (currentDataSource === 'unified') {
+                    result = await fetchUnifiedApiData();
+                    if (result.success) {
+                        dataSource.textContent = '数据源: 统一API';
+                        console.log('✅ 统一API数据刷新成功');
+                    } else {
+                        throw new Error(result.error);
+                    }
+                }
+
+                if (result && result.success) {
                     // API调用成功
                     renderTrainList();
 
@@ -3094,20 +3247,14 @@
                     }
                     setTimeout(() => {
                         scheduleSmartStatusRefresh();
-                        console.log('🔄 智能状态刷新已重新启动（12306数据）');
+                        console.log(`🔄 智能状态刷新已重新启动（${currentDataSource}数据）`);
                     }, 500);
-
-                    dataSource.textContent = '数据源: 12306 API';
-                    console.log('✅ 12306数据刷新成功');
-                } else {
-                    // API调用失败，已自动切换到模拟数据
-                    throw new Error(result.error);
                 }
             } catch (error) {
-                console.error('刷新12306数据失败:', error);
+                console.error(`刷新${currentDataSource}数据失败:`, error);
 
                 // 显示错误提示
-                // alert('获取12306数据失败，已切换回模拟数据\n错误信息: ' + error.message);
+                // alert(`获取${currentDataSource}数据失败，已切换回模拟数据\n错误信息: ` + error.message);
 
                 // 切换回模拟数据
                 currentDataSource = 'simulation';
@@ -3116,16 +3263,17 @@
                 // 更新UI状态
                 document.getElementById('simulationDataBtn').classList.add('active');
                 document.getElementById('api12306DataBtn').classList.remove('active');
+                document.getElementById('unifiedApiDataBtn').classList.remove('active');
                 dataSource.textContent = '数据源: 模拟数据 (API失败)';
 
                 // 重新渲染
                 renderTrainList();
             } finally {
                 // 恢复按钮状态
-                refreshBtn.disabled = currentDataSource !== '12306';
-                refreshBtn.textContent = '刷新12306数据';
+                refreshBtn.disabled = currentDataSource === 'simulation';
+                refreshBtn.textContent = '刷新数据';
             }
-        }        // 初始化和定时更新
+        }// 初始化和定时更新
         async function init() {
             updateCurrentTime();
             
@@ -3134,19 +3282,10 @@
             
             initStationInput();
 
-            // 默认使用模拟数据初始化
-            console.log('初始化完成，使用模拟数据');
-            currentDataSource = 'simulation';
-            trainData = [...simulationTrainData];
-
-            // 确保UI状态正确
-            document.getElementById('simulationDataBtn').classList.add('active');
-            document.getElementById('api12306DataBtn').classList.remove('active');
-            document.getElementById('refreshDataBtn').disabled = true;
-            document.getElementById('dataSource').textContent = '数据源: 模拟数据';
-            renderTrainList();
-
             // 启动智能状态刷新
+            if (window.statusRefreshTimer) {
+                clearTimeout(window.statusRefreshTimer);
+            }
             setTimeout(() => {
                 scheduleSmartStatusRefresh();
                 console.log('🚀 智能状态刷新已启动');
@@ -3181,20 +3320,19 @@
             // 保存到本地存储
             if (saveToStorage && storageManager.isAvailable()) {
                 storageManager.saveDataSource(source);
-            }
-
-            // 更新按钮状态
+            }            // 更新按钮状态
             const simulationBtn = document.getElementById('simulationDataBtn');
             const api12306Btn = document.getElementById('api12306DataBtn');
+            const unifiedApiBtn = document.getElementById('unifiedApiDataBtn');
             const refreshBtn = document.getElementById('refreshDataBtn');
             const dataSourceDisplay = document.getElementById('dataSource');
-
             if (source === 'simulation') {
                 // 使用模拟数据
                 simulationBtn.classList.add('active');
                 api12306Btn.classList.remove('active');
+                unifiedApiBtn.classList.remove('active');
                 refreshBtn.disabled = true;
-                refreshBtn.textContent = '刷新12306数据';
+                refreshBtn.textContent = '刷新数据';
                 // 切换到模拟数据
                 trainData = [...simulationTrainData];
                 dataSourceDisplay.textContent = '数据源: 模拟数据';
@@ -3215,6 +3353,7 @@
                 // 使用12306数据
                 simulationBtn.classList.remove('active');
                 api12306Btn.classList.add('active');
+                unifiedApiBtn.classList.remove('active');
                 refreshBtn.disabled = false;
 
                 // 显示初始化状态
@@ -3230,7 +3369,7 @@
 
                     // 恢复按钮状态
                     refreshBtn.disabled = false;
-                    refreshBtn.textContent = '刷新12306数据';
+                    refreshBtn.textContent = '刷新数据';
 
                     // 尝试获取12306数据
                     await refreshTrainData();
@@ -3244,7 +3383,45 @@
                     simulationBtn.classList.add('active');
                     api12306Btn.classList.remove('active');
                     refreshBtn.disabled = true;
-                    refreshBtn.textContent = '刷新12306数据';
+                    refreshBtn.textContent = '刷新数据';
+                    currentDataSource = 'simulation';                    
+                    trainData = [...simulationTrainData];
+                    dataSourceDisplay.textContent = '数据源: 模拟数据 (初始化失败)';
+                    renderTrainList();
+                }
+            } else if (source === 'unified') {
+                // 使用统一API数据
+                simulationBtn.classList.remove('active');
+                api12306Btn.classList.remove('active');
+                unifiedApiBtn.classList.add('active');
+                refreshBtn.disabled = false;
+
+                // 显示初始化状态
+                dataSourceDisplay.textContent = '数据源: 统一API 初始化中...';
+                refreshBtn.disabled = true;
+                refreshBtn.textContent = '初始化中...';
+
+                try {
+                    console.log('🔄 开始获取统一API数据...');
+
+                    // 恢复按钮状态
+                    refreshBtn.disabled = false;
+                    refreshBtn.textContent = '刷新数据';
+
+                    // 尝试获取统一API数据
+                    await refreshTrainData();
+                } catch (error) {
+                    console.error('❌ 统一API初始化失败:', error);
+
+                    // 显示错误提示
+                    alert('统一API初始化失败，请检查网络连接后重试\n错误信息: ' + error.message);
+
+                    // 回退到模拟数据
+                    simulationBtn.classList.add('active');
+                    api12306Btn.classList.remove('active');
+                    unifiedApiBtn.classList.remove('active');
+                    refreshBtn.disabled = true;
+                    refreshBtn.textContent = '刷新数据';
                     currentDataSource = 'simulation';
                     trainData = [...simulationTrainData];
                     dataSourceDisplay.textContent = '数据源: 模拟数据 (初始化失败)';
@@ -3288,8 +3465,17 @@
                 : '暂无记录';
             document.getElementById('recentStationsList').textContent = recentStationsText;
             
+
+            // 处理数据源显示
+            let dataSourceText = '模拟数据';
+            if (settings.dataSource === '12306') {
+                dataSourceText = '12306 API';
+            } else if (settings.dataSource === 'unified') {
+                dataSourceText = '第三方统一API';
+            }
+
             // 显示当前设置
-            const settingsText = `当前站点: ${settings.currentStation} | 方向: ${settings.currentDirection === 'huizhou' ? '惠州方向' : '肇庆方向'} | 数据源: ${settings.dataSource === 'simulation' ? '模拟数据' : '12306数据'}`;
+            const settingsText = `当前站点: ${settings.currentStation} | 方向: ${settings.currentDirection === 'huizhou' ? '惠州方向' : '肇庆方向'} | 数据源: ${dataSourceText}`;
             document.getElementById('currentSettings').textContent = settingsText;
         }
         
