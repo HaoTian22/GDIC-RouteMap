@@ -3142,8 +3142,18 @@
                 };
 
                 // 转为车站代码
-                requestBody.stationCode = railway12306.getStationCode(currentStation); // 确保车站代码正确
-        
+                // requestBody.stationCode = railway12306.getStationCode(currentStation); // 确保车站代码正确
+                requestBody.stationName = currentStation.replace('站', ''); // 使用去除"站"的车站名称
+
+                // 特殊处理 肇庆 东莞西 佛山西
+                if (currentStation === '肇庆站') {
+                    requestBody.stationName = '肇  庆';
+                } else if (currentStation === '东莞西站') {
+                    requestBody.stationName = '东莞  西';
+                } else if (currentStation === '佛山西站') {
+                    requestBody.stationName = '佛山  西';
+                }
+
                 console.log('🚀 统一API请求参数:', requestBody);
 
                 // 发送请求到本地服务器的统一API
