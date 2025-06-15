@@ -114,13 +114,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚄 车站大屏API测试工具</h1>
-        <div class="info">
+        <h1>🚄 车站大屏API测试工具</h1>        <div class="info">
             <strong>使用说明：</strong>
             <ul>
                 <li><strong>方法2 (中国铁路API):</strong> 需要使用车站代码，如：CSQ(长沙)、PYQ(普宁)</li>
                 <li><strong>方法3 (苏州快享API):</strong> 需要使用车站名称，如：长沙南、北京西</li>
-                <li>请确保代理服务器运行在 localhost:3001</li>
+                <li>本地开发时使用代理服务器 (localhost:3001)，生产环境直接使用 Vercel API</li>
             </ul>
         </div>
     </div>
@@ -191,10 +190,11 @@
             <button onclick="testUnifiedStationScreen()">🔍 查询车站大屏 (统一API)</button>
             <div id="result-unified" class="result" style="display: none;"></div>
         </div>
-    </div>
-
-    <script>
-        const API_BASE = 'http://localhost:3001';
+    </div>    <script>
+        // 生产环境使用相对路径，开发环境使用localhost
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3001'
+            : window.location.origin; // 在生产环境使用当前域名
 
         function showResult(elementId, content, type = 'info') {
             const element = document.getElementById(elementId);
@@ -364,12 +364,11 @@
             } catch (error) {
                 showResult('result-unified', `网络错误: ${error.message}`, 'error');
             }
-        }
-
-        // 页面加载时的提示
+        }        // 页面加载时的提示
         window.addEventListener('load', () => {
             console.log('车站大屏API测试工具已加载');
-            console.log('代理服务器地址:', API_BASE);
+            console.log('API服务地址:', API_BASE);
+            console.log('运行环境:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '开发环境' : '生产环境');
         });
     </script>
 </body>
