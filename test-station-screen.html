@@ -95,11 +95,47 @@
             background-color: #f8d7da;
             color: #721c24;
         }
-        
-        .loading {
+          .loading {
             border-color: #ffc107;
             background-color: #fff3cd;
             color: #856404;
+        }
+        
+        /* 车站建议样式 */
+        .station-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* 输入框容器需要相对定位 */
+        .form-group {
+            position: relative;
         }
         
         .info {
@@ -110,15 +146,43 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+
+        .station-suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🚄 车站大屏API测试工具</h1>        <div class="info">
+<body>    <div class="container">
+        <h1>🚄 车站大屏API测试工具</h1>        
+        <!-- 车站代码加载状态指示器 -->
+        <div id="station-code-status" class="info" style="background: #e3f2fd; border-color: #2196f3;">
+            <p id="station-code-message">🔄 正在加载车站代码数据...</p>
+        </div>
+        
+        <div class="info">
             <strong>使用说明：</strong>
             <ul>
                 <li><strong>方法2 (中国铁路API):</strong> 需要使用车站代码，如：CSQ(长沙)、PYQ(普宁)</li>
                 <li><strong>方法3 (苏州快享API):</strong> 需要使用车站名称，如：长沙南、北京西</li>
+                <li><strong>🆕 智能提示：</strong> 在车站名称输入框中输入时会自动显示匹配的车站和代码</li>
                 <li>本地开发时使用代理服务器 (localhost:3001)，生产环境直接使用 Vercel API</li>
             </ul>
         </div>
@@ -198,7 +262,393 @@
             ? 'http://localhost:3001'
             : window.location.origin; // 在生产环境使用当前域名
 
-        function showResult(elementId, content, type = 'info') {
+        // 12306车站代码转换类 - 从index.html引入
+        class StationCodeConverter {
+            constructor() {
+                this.stationCodes = new Map(); // 存储站点名称到代码的映射
+                this.isInitialized = false;
+                this.proxyBaseUrl = API_BASE;
+            }
+
+            // 初始化车站代码
+            async initialize() {
+                if (this.isInitialized) {
+                    return true;
+                }
+
+                try {
+                    await this.loadStationCodes();
+                    this.isInitialized = true;
+                    return true;
+                } catch (error) {
+                    console.error('车站代码初始化失败:', error);
+                    return false;
+                }
+            }
+
+            // 确保已初始化
+            async ensureInitialized() {
+                if (this.isInitialized) {
+                    return true;
+                }
+                
+                if (!this.initializationPromise) {
+                    this.initializationPromise = this.initialize();
+                }
+                
+                await this.initializationPromise;
+                return this.isInitialized;
+            }
+
+            // 加载车站代码信息
+            async loadStationCodes() {
+                try {
+                    console.log('开始加载车站代码...');
+                    const response = await fetch(`${this.proxyBaseUrl}/api/station-codes`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const text = await response.text();
+                    // 解析station_names字符串
+                    const match = text.match(/var station_names ='(.+)';/);
+                    if (match) {
+                        const stationData = match[1];
+                        const stations = stationData.split('@').filter(item => item.length > 0);
+
+                        stations.forEach(station => {
+                            const parts = station.split('|');
+                            if (parts.length >= 3) {
+                                const stationName = parts[1]; // 中文名
+                                const stationCode = parts[2]; // 英文代码
+
+                                // 为站名添加"站"字后缀，以匹配我们的站点名称格式
+                                const stationNameWithSuffix = stationName.endsWith('站') ? stationName : stationName + '站';
+                                this.stationCodes.set(stationNameWithSuffix, stationCode);
+
+                                // 同时也保存不带"站"字的映射，以防万一
+                                this.stationCodes.set(stationName, stationCode);
+                            }
+                        });
+
+                        console.log('车站代码加载完成，共', this.stationCodes.size, '个车站');
+                    } else {
+                        throw new Error('无法解析车站代码数据');
+                    }
+                } catch (error) {
+                    console.error('加载车站代码失败:', error);
+                    throw error; // 重新抛出错误，强制失败
+                }
+            }
+
+            // 获取车站代码
+            getStationCode(stationName) {
+                // 检查车站代码是否已加载
+                if (this.stationCodes.size === 0) {
+                    throw new Error('车站代码尚未加载完成，请等待网络加载或检查网络连接');
+                }
+
+                // 首先尝试直接查找
+                if (this.stationCodes.has(stationName)) {
+                    return this.stationCodes.get(stationName);
+                }
+
+                // 如果没找到，尝试添加或移除"站"字
+                if (stationName.endsWith('站')) {
+                    // 如果带"站"字，尝试不带"站"字的版本
+                    const nameWithoutSuffix = stationName.slice(0, -1);
+                    if (this.stationCodes.has(nameWithoutSuffix)) {
+                        return this.stationCodes.get(nameWithoutSuffix);
+                    }
+                } else {
+                    // 如果不带"站"字，尝试带"站"字的版本
+                    const nameWithSuffix = stationName + '站';
+                    if (this.stationCodes.has(nameWithSuffix)) {
+                        return this.stationCodes.get(nameWithSuffix);
+                    }
+                }
+
+                console.warn(`未找到车站代码: ${stationName}，可用车站代码数量: ${this.stationCodes.size}`);
+                return null;
+            }
+
+            // 获取所有已加载的车站名称列表
+            getStationNames() {
+                return Array.from(this.stationCodes.keys());
+            }
+
+            // 根据模糊匹配查找车站
+            findStationsByPattern(pattern) {
+                const results = [];
+                const lowerPattern = pattern.toLowerCase();
+                
+                for (const stationName of this.stationCodes.keys()) {
+                    if (stationName.toLowerCase().includes(lowerPattern)) {
+                        results.push({
+                            name: stationName,
+                            code: this.stationCodes.get(stationName)
+                        });
+                    }
+                }
+                
+                return results;
+            }
+        }
+
+        // 创建全局车站代码转换器实例
+        const stationCodeConverter = new StationCodeConverter();        // 页面加载时初始化车站代码
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('正在初始化车站代码转换器...');
+            
+            // 更新状态指示器
+            updateStationCodeStatus('loading', '🔄 正在加载车站代码数据...');
+            
+            try {
+                const success = await stationCodeConverter.initialize();
+                if (success) {
+                    console.log('车站代码转换器初始化成功');
+                    const stationCount = stationCodeConverter.stationCodes.size;
+                    updateStationCodeStatus('success', `✅ 车站代码加载完成，共 ${stationCount} 个车站，已启用智能提示功能`);
+                    
+                    // 添加辅助功能：车站名称自动完成
+                    addStationAutoComplete();
+                } else {
+                    console.warn('车站代码转换器初始化失败');
+                    updateStationCodeStatus('error', '❌ 车站代码加载失败，智能提示功能不可用');
+                }
+            } catch (error) {
+                console.error('车站代码转换器初始化错误:', error);
+                updateStationCodeStatus('error', `❌ 车站代码加载错误: ${error.message}`);
+            }
+        });
+
+        // 更新车站代码状态指示器
+        function updateStationCodeStatus(type, message) {
+            const statusDiv = document.getElementById('station-code-status');
+            const messageP = document.getElementById('station-code-message');
+            
+            if (statusDiv && messageP) {
+                messageP.textContent = message;
+                
+                // 更新样式
+                statusDiv.className = 'info';
+                switch (type) {
+                    case 'loading':
+                        statusDiv.style.background = '#e3f2fd';
+                        statusDiv.style.borderColor = '#2196f3';
+                        break;
+                    case 'success':
+                        statusDiv.style.background = '#d4edda';
+                        statusDiv.style.borderColor = '#28a745';
+                        break;
+                    case 'error':
+                        statusDiv.style.background = '#f8d7da';
+                        statusDiv.style.borderColor = '#dc3545';
+                        break;
+                }
+            }
+        }        // 添加车站名称自动完成功能
+        function addStationAutoComplete() {
+            const stationInputs = document.querySelectorAll('#stationName, #unifiedStation');
+            const stationCodeInput = document.getElementById('stationCode');
+            
+            // 为车站名称输入框添加自动完成
+            stationInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value.trim();
+                    if (value.length >= 1) {
+                        const suggestions = stationCodeConverter.findStationsByPattern(value);
+                        showSuggestions(input, suggestions.slice(0, 10)); // 只显示前10个建议
+                    } else {
+                        hideSuggestions(input);
+                    }
+                });
+
+                input.addEventListener('blur', function() {
+                    // 延迟隐藏建议，让点击事件能够触发
+                    setTimeout(() => hideSuggestions(input), 200);
+                });
+            });
+
+            // 为车站代码输入框添加反向查找功能
+            if (stationCodeInput) {
+                stationCodeInput.addEventListener('input', function(e) {
+                    const value = e.target.value.trim().toUpperCase();
+                    if (value.length >= 1) {
+                        const suggestions = [];
+                        const stationNames = stationCodeConverter.getStationNames();
+                        
+                        // 查找代码匹配的车站
+                        stationNames.forEach(name => {
+                            const code = stationCodeConverter.getStationCode(name);
+                            if (code && code.includes(value)) {
+                                suggestions.push({
+                                    name: name,
+                                    code: code
+                                });
+                            }
+                        });
+                        
+                        showCodeSuggestions(stationCodeInput, suggestions.slice(0, 10));
+                    } else {
+                        hideSuggestions(stationCodeInput);
+                    }
+                });
+
+                stationCodeInput.addEventListener('blur', function() {
+                    setTimeout(() => hideSuggestions(stationCodeInput), 200);
+                });
+            }
+        }
+
+        // 显示车站建议
+        function showSuggestions(input, suggestions) {
+            let suggestionsList = input.parentNode.querySelector('.station-suggestions');
+            
+            if (!suggestionsList) {
+                suggestionsList = document.createElement('div');
+                suggestionsList.className = 'station-suggestions';
+                suggestionsList.style.cssText = `
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                `;
+                input.parentNode.style.position = 'relative';
+                input.parentNode.appendChild(suggestionsList);
+            }
+
+            if (suggestions.length === 0) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            suggestionsList.innerHTML = suggestions.map(station => `
+                <div class="suggestion-item" style="
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    color: #333;
+                    border-bottom: 1px solid #eee;
+                " data-name="${station.name}" data-code="${station.code}">
+                    <strong>${station.name}</strong> <span style="color: #666;">(${station.code})</span>
+                </div>
+            `).join('');
+
+            // 添加点击事件
+            suggestionsList.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    input.value = this.dataset.name;
+                    hideSuggestions(input);
+                    
+                    // 如果是统一API的输入框，还要更新代码显示
+                    if (input.id === 'unifiedStation') {
+                        updateStationCodeDisplay(this.dataset.name, this.dataset.code);
+                    }
+                });
+
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f0f0f0';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+
+            suggestionsList.style.display = 'block';
+        }
+
+        // 显示车站代码建议（专用于代码输入框）
+        function showCodeSuggestions(input, suggestions) {
+            let suggestionsList = input.parentNode.querySelector('.station-suggestions');
+            
+            if (!suggestionsList) {
+                suggestionsList = document.createElement('div');
+                suggestionsList.className = 'station-suggestions';
+                suggestionsList.style.cssText = `
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                `;
+                input.parentNode.style.position = 'relative';
+                input.parentNode.appendChild(suggestionsList);
+            }
+
+            if (suggestions.length === 0) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            suggestionsList.innerHTML = suggestions.map(station => `
+                <div class="suggestion-item" style="
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    color: #333;
+                    border-bottom: 1px solid #eee;
+                " data-name="${station.name}" data-code="${station.code}">
+                    <strong>${station.code}</strong> <span style="color: #666;">(${station.name})</span>
+                </div>
+            `).join('');
+
+            // 添加点击事件
+            suggestionsList.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    input.value = this.dataset.code;
+                    hideSuggestions(input);
+                });
+
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f0f0f0';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+
+            suggestionsList.style.display = 'block';
+        }
+
+        // 隐藏车站建议
+        function hideSuggestions(input) {
+            const suggestionsList = input.parentNode.querySelector('.station-suggestions');
+            if (suggestionsList) {
+                suggestionsList.style.display = 'none';
+            }
+        }
+
+        // 更新车站代码显示（为统一API添加）
+        function updateStationCodeDisplay(stationName, stationCode) {
+            // 可以在这里添加显示逻辑，比如在输入框旁边显示对应的代码
+            console.log(`选择车站: ${stationName} (${stationCode})`);
+        }
+
+        // 辅助函数：根据车站名称获取代码
+        async function getStationCodeByName(stationName) {
+            await stationCodeConverter.ensureInitialized();
+            return stationCodeConverter.getStationCode(stationName);
+        }
+
+        // 辅助函数：检查输入是否为车站代码格式
+        function isStationCodeFormat(input) {
+            return /^[A-Z]{3}$/.test(input.trim());
+        }        function showResult(elementId, content, type = 'info') {
             const element = document.getElementById(elementId);
             element.style.display = 'block';
             element.className = `result ${type}`;
@@ -261,6 +711,24 @@
             showResult('result-ccrgt', '正在查询中国铁路API...', 'loading');
             
             try {
+                // 确保车站代码转换器已初始化
+                await stationCodeConverter.ensureInitialized();
+                
+                // 尝试通过代码查找对应的车站名称用于显示
+                let displayInfo = stationCode;
+                const stationNames = stationCodeConverter.getStationNames();
+                const foundStation = stationNames.find(name => 
+                    stationCodeConverter.getStationCode(name) === stationCode.toUpperCase()
+                );
+                
+                if (foundStation) {
+                    displayInfo = `${foundStation}(${stationCode})`;
+                } else {
+                    displayInfo = `代码: ${stationCode}`;
+                }
+                
+                showResult('result-ccrgt', `正在查询中国铁路API... 车站: ${displayInfo}`, 'loading');
+                
                 const response = await fetch(`${API_BASE}/api/station-screen-ccrgt`, {
                     method: 'POST',
                     headers: {
@@ -283,9 +751,7 @@
             } catch (error) {
                 showResult('result-ccrgt', `网络错误: ${error.message}`, 'error');
             }
-        }
-
-        async function testStationScreenSuanya() {
+        }async function testStationScreenSuanya() {
             const stationName = document.getElementById('stationName').value.trim();
             const screenFlag = parseInt(document.getElementById('screenFlag').value);
             
@@ -297,6 +763,15 @@
             showResult('result-suanya', '正在查询苏州快享API...', 'loading');
             
             try {
+                // 确保车站代码转换器已初始化
+                await stationCodeConverter.ensureInitialized();
+                
+                // 尝试获取车站代码用于显示
+                const stationCode = stationCodeConverter.getStationCode(stationName);
+                const displayInfo = stationCode ? `${stationName}(${stationCode})` : stationName;
+                
+                showResult('result-suanya', `正在查询苏州快享API... 车站: ${displayInfo}`, 'loading');
+                
                 const response = await fetch(`${API_BASE}/api/station-screen-suanya`, {
                     method: 'POST',
                     headers: {
@@ -319,9 +794,7 @@
             } catch (error) {
                 showResult('result-suanya', `网络错误: ${error.message}`, 'error');
             }
-        }
-
-        async function testUnifiedStationScreen() {
+        }        async function testUnifiedStationScreen() {
             const station = document.getElementById('unifiedStation').value.trim();
             const screenType = document.getElementById('unifiedScreenType').value;
             const provider = document.getElementById('unifiedProvider').value;
@@ -334,6 +807,9 @@
             showResult('result-unified', '正在查询统一API...', 'loading');
             
             try {
+                // 确保车站代码转换器已初始化
+                await stationCodeConverter.ensureInitialized();
+                
                 // 自动判断是车站名称还是代码
                 const isStationCode = /^[A-Z]{3}$/.test(station); // 3个大写字母认为是代码
                 const requestBody = {
@@ -341,11 +817,25 @@
                     provider: provider
                 };
                 
+                let displayInfo = station;
+                
                 if (isStationCode) {
                     requestBody.stationCode = station;
+                    displayInfo = `代码: ${station}`;
                 } else {
                     requestBody.stationName = station;
+                    // 尝试获取对应的车站代码
+                    const stationCode = stationCodeConverter.getStationCode(station);
+                    if (stationCode) {
+                        displayInfo = `${station}(${stationCode})`;
+                        // 可以选择同时发送代码，提高查询成功率
+                        requestBody.stationCode = stationCode;
+                    } else {
+                        displayInfo = `${station}(代码未找到)`;
+                    }
                 }
+                
+                showResult('result-unified', `正在查询统一API... 车站: ${displayInfo}`, 'loading');
                 
                 const response = await fetch(`${API_BASE}/api/station-screen`, {
                     method: 'POST',
@@ -371,7 +861,35 @@
             console.log('车站大屏API测试工具已加载');
             console.log('API服务地址:', API_BASE);
             console.log('运行环境:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '开发环境' : '生产环境');
+            console.log('车站代码转换功能已集成，支持智能提示和自动完成');
+            console.log('调试提示：在控制台中使用 debugStationCodes.showAll() 查看所有可用车站代码');
         });
+        
+        // 辅助函数：显示所有可用车站代码（调试用）
+        function showAllStationCodes() {
+            if (stationCodeConverter.stationCodes.size === 0) {
+                console.log('车站代码尚未加载');
+                return;
+            }
+            
+            console.log('=== 所有可用车站代码 ===');
+            const stations = Array.from(stationCodeConverter.stationCodes.entries())
+                .sort((a, b) => a[1].localeCompare(b[1])); // 按代码排序
+            
+            stations.forEach(([name, code]) => {
+                console.log(`${code}: ${name}`);
+            });
+            
+            console.log(`总计: ${stations.length} 个车站`);
+        }
+
+        // 添加到全局对象，方便调试
+        window.debugStationCodes = {
+            converter: stationCodeConverter,
+            showAll: showAllStationCodes,
+            getCode: (name) => stationCodeConverter.getStationCode(name),
+            search: (pattern) => stationCodeConverter.findStationsByPattern(pattern)
+        };
     </script>
 </body>
 </html>
