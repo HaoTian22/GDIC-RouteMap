@@ -404,7 +404,7 @@ function normalizeStationScreenData(rawData, provider, requestParams) {
           trainNo: train.trainCode || '',
           endStation: train.endStation || '',
           checkIn: train.wicket || '',
-          departureTime: new Date(train.startDepartTime*1000).getHours()+':' + new Date(train.startDepartTime*1000).getMinutes() || '',
+          departureTime: String(new Date(train.startDepartTime*1000).getHours()).padStart(2, '0') + ':' + String(new Date(train.startDepartTime*1000).getMinutes()).padStart(2, '0') || '',
           status: train.status || '',
           // 1候车 2检票 3已开 
         }));
