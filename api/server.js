@@ -400,14 +400,22 @@ function normalizeStationScreenData(rawData, provider, requestParams) {
       if (rawData && rawData.code === 0 && rawData.data && Array.isArray(rawData.data.list)) {
         normalizedResponse.success = true;
         normalizedResponse.data.totalCount = rawData.data.list.length;
-        normalizedResponse.data.trains = rawData.data.list.map(train => ({
-          trainNo: train.trainCode || '',
-          endStation: train.endStation || '',
-          checkIn: train.wicket || '',
-          departureTime: String(new Date(train.startDepartTime*1000).getHours()).padStart(2, '0') + ':' + String(new Date(train.startDepartTime*1000).getMinutes()).padStart(2, '0') || '',
-          status: train.status || '',
-          // 1候车 2检票 3已开 
-        }));
+        normalizedResponse.data.trains = rawData.data.list.map(train => {
+          // 确保时间使用中国时区（Asia/Shanghai）避免服务器时区差异
+          const date = new Date(train.startDepartTime * 1000);
+          const chinaTime = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+          const hours = String(chinaTime.getHours()).padStart(2, '0');
+          const minutes = String(chinaTime.getMinutes()).padStart(2, '0');
+          
+          return {
+            trainNo: train.trainCode || '',
+            endStation: train.endStation || '',
+            checkIn: train.wicket || '',
+            departureTime: `${hours}:${minutes}`,
+            status: train.status || '',
+            // 1候车 2检票 3已开 
+          };
+        });
       }
     } else if (provider === 'suanya') {
       // 处理苏州快享API返回的数据
